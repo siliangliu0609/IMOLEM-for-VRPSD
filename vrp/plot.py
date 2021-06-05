@@ -1,0 +1,161 @@
+import matplotlib.pyplot as plt
+import pickle
+import os
+
+
+def plot_trace(datamaps, modes, labels, titles, save, trace, linestyles):
+    for datamap in datamaps:
+
+        if not os.path.exists('pic/'+datamap):
+            os.mkdir('pic/'+datamap)
+
+        datafiles = []
+        for mode in modes:
+            datafiles.append('result/{}/{}_trace_{}.txt'.format(datamap, mode, trace))
+
+        trace_lists = []
+        for datafile in datafiles:
+            f = open(datafile)
+            trace_lists.append([])
+            for line in f:
+                trace_lists[-1].append(tuple(float(x) for x in line.split()))
+
+        axs = []
+        for i in range(len(save)):
+            plt.figure(datamap+str(i))
+            axs.append(plt.subplot())
+            axs[i].set_title(titles[i])
+
+        #avg_routes, avg_distance, avg_pay, hv, spacing
+        for i in range(len(datafiles)):
+            axs[0].plot([x[1] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
+            axs[1].plot([x[2] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
+            axs[2].plot([x[1]*x[2] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
+
+        for ax in axs:
+            ax.legend()
+
+        for i in range(len(save)):
+            plt.figure(datamap+str(i))
+            plt.tight_layout()
+            plt.savefig('pic/{}/{}_{}.png'.format(datamap, datamap, save[i]))
+
+    # plt.show()
+
+
+def plot_population_trace(datamaps, modes):
+    for datamap in datamaps:
+        
+        if not os.path.exists('pic/'+datamap):
+            os.mkdir('pic/'+datamap)
+
+        for mode in modes:
+
+            Qf = open('result/{}/{}_population_trace.pickle'.format(datamap, mode), 'rb')
+            Q_trace = pickle.load(Qf)
+
+            V = []
+            D = []
+            R = []
+            for Q in Q_trace:
+                for chro in Q:
+                    V.append(len(chro.routes))
+                    D.append(chro.distance)
+                    R.append(chro.pay)
+
+            plt.figure(datamap+mode+'0')
+            ax = plt.axes(projection='3d')
+            ax.scatter3D(V, D, R, s=1)
+            ax.set_xlabel('Number of vehicles')
+            ax.set_ylabel('Travel distance')
+            ax.set_zlabel('Driver remuneration')
+
+            plt.tight_layout()
+            plt.savefig('pic/{}/{}_{}_space_3d_trace.png'.format(datamap, datamap, mode))
+
+            plt.figure(datamap+mode+'1')
+            ax = plt.subplot()
+            ax.scatter(D, R, s=1)
+            ax.set_xlabel('Travel distance')
+            ax.set_ylabel('Driver remuneration')
+
+            plt.tight_layout()
+            plt.savefig('pic/{}/{}_{}_space_2d_DR_trace.png'.format(datamap, datamap, mode))
+
+            plt.figure(datamap+mode+'2')
+            ax = plt.subplot()
+            ax.scatter(D, V, s=1)
+            ax.set_xlabel('Travel distance')
+            ax.set_ylabel('Number of Vehicles')
+
+            plt.tight_layout()
+            plt.savefig('pic/{}/{}_{}_space_2d_DV_trace.png'.format(datamap, datamap, mode))
+
+            plt.figure(datamap+mode+'3')
+            ax = plt.subplot()
+            ax.scatter(R, V, s=1)
+            ax.set_xlabel('Driver remuneration')
+            ax.set_ylabel('Number of Vehicles')
+
+            plt.tight_layout()
+            plt.savefig('pic/{}/{}_{}_space_2d_RV_trace.png'.format(datamap, datamap, mode))
+
+            # plt.show()
+
+def plot_population_last(datamaps, modes):
+    for datamap in datamaps:
+
+        if not os.path.exists('pic/'+datamap):
+            os.mkdir('pic/'+datamap)
+
+        for mode in modes:
+
+            Qf = open('result/{}/{}_population.pickle'.format(datamap, mode), 'rb')
+            Q = pickle.load(Qf)
+
+            V = []
+            D = []
+            R = []
+            for chro in Q:
+                V.append(len(chro.routes))
+                D.append(chro.distance)
+                R.append(chro.pay)
+
+            plt.figure(datamap+mode+'0')
+            ax = plt.axes(projection='3d')
+            ax.scatter3D(V, D, R, s=1)
+            ax.set_xlabel('Number of vehicles')
+            ax.set_ylabel('Travel distance')
+            ax.set_zlabel('Driver remuneration')
+
+            plt.tight_layout()
+            plt.savefig('pic/{}/{}_{}_space_3d_trace.png'.format(datamap, datamap, mode))
+
+            plt.figure(datamap+mode+'1')
+            ax = plt.subplot()
+            ax.scatter(D, R, s=1)
+            ax.set_xlabel('Travel distance')
+            ax.set_ylabel('Driver remuneration')
+
+            plt.tight_layout()
+            plt.savefig('pic/{}/{}_{}_space_2d_DR.png'.format(datamap, datamap, mode))
+
+            plt.figure(datamap+mode+'2')
+            ax = plt.subplot()
+            ax.scatter(D, V, s=1)
+            ax.set_xlabel('Travel distance')
+            ax.set_ylabel('Number of Vehicles')
+
+            plt.tight_layout()
+            plt.savefig('pic/{}/{}_{}_space_2d_DV.png'.format(datamap, datamap, mode))
+
+            plt.figure(datamap+mode+'3')
+            ax = plt.subplot()
+            ax.scatter(R, V, s=1)
+            ax.set_xlabel('Driver remuneration')
+            ax.set_ylabel('Number of Vehicles')
+
+            plt.tight_layout()
+            plt.savefig('pic/{}/{}_{}_space_2d_RV.png'.format(datamap, datamap, mode))
+
+            # plt.show()
