@@ -12,9 +12,9 @@ def moea(evo_param, problem):
     converge_trace_first = []
 
     P = []  # 进化种群
-    first_chro = util.build_first_chromosome(problem)
-    P.append(first_chro)
-    max_route = len(first_chro.routes)
+    first_plan = util.build_first_plan(problem)
+    P.append(first_plan)
+    max_route = len(first_plan.routes)
     P.extend(util.initialization(problem, evo_param.size-1, max_route))
     Q = []  # 归档种群
 
@@ -27,12 +27,12 @@ def moea(evo_param, problem):
 
         for cus in problem.customers:
             cus.generate_actual_demand(evo_param.N)
-        for chro in P:
-            chro.RSM(evo_param.N, problem)  # 在计算完RSM目标值后，应重新将所有路线的客户需求设为平均值
-            for route in chro.routes:
+        for plan in P:
+            plan.RSM(evo_param.N, problem)  # 在计算完RSM目标值后，应重新将所有路线的客户需求设为平均值
+            for route in plan.routes:
                 route.set_mean_demand()
 
-        Q.extend([chro.copy() for chro in P])
+        Q.extend([plan.copy() for plan in P])
         #Q = util.deduplicate_objective(Q)
         Q = util.deduplicate(Q)
         if len(Q) > evo_param.size:
@@ -45,8 +45,8 @@ def moea(evo_param, problem):
         #    if iter % M == 0:
         #        for cus in customers:
         #            cus.generate_actual_demand(N)
-        #    for chro in Q:
-        #        chro.RSM(N)
+        #    for plan in Q:
+        #        plan.RSM(N)
         # elif RSMmode == 'alter':
         #    if iter % (2*M) == 0:
         #        for cus in customers:
@@ -54,17 +54,17 @@ def moea(evo_param, problem):
         #    if iter % (2*M) == M:
         #        for cus in customers:
         #            cus.actual_demand = [cus.mean]
-        #    for chro in Q:
+        #    for plan in Q:
         #        if iter % 2*M < M:
-        #            chro.RSM(N)
+        #            plan.RSM(N)
         #        else:
-        #            chro.RSM(1)
+        #            plan.RSM(1)
         # elif RSMmode == 'determine':
         #    if iter == 0:
         #        for cus in customers:
         #            cus.actual_demand = [cus.mean]
-        #    for chro in Q:
-        #        chro.RSM(1)
+        #    for plan in Q:
+        #        plan.RSM(1)
         # else:
         #    print("wrong RSMmode")
         #    exit()
@@ -78,19 +78,19 @@ def moea(evo_param, problem):
                 crossoverP[i].route_crossover(crossoverP[i+1], 0.3)
         P = crossoverP
 
-        for chro in P:
-            chro.mutation(problem, 0.4, 0.5, 0.5, 0.3)
+        for plan in P:
+            plan.mutation(problem, 0.4, 0.5, 0.5, 0.3)
 
             if local_search:
-                for route in chro.routes:
+                for route in plan.routes:
                     route.set_mean_demand()
-                chro.local_search_exploitation_SPS(problem)
-                chro.local_search_exploitation_WDS(problem)
+                plan.local_search_exploitation_SPS(problem)
+                plan.local_search_exploitation_WDS(problem)
 
         if evo_param.trace:
             converge_trace_all.append(util.cal_result(Q, evo_param.N, problem)[0])
             converge_trace_first.append(util.cal_result(util.pareto_first(Q), evo_param.N, problem)[0])
-            Q_trace.append([chro.copy() for chro in Q])
+            Q_trace.append([plan.copy() for plan in Q])
 
     return Q, Q_trace, converge_trace_all, converge_trace_first
 
@@ -104,9 +104,9 @@ def lem(evo_param, problem):
 
     P = []
     if evo_param.spec_init:
-        first_chro = util.build_first_chromosome(problem)
-        P.append(first_chro)
-        max_route = len(first_chro.routes)
+        first_plan = util.build_first_plan(problem)
+        P.append(first_plan)
+        max_route = len(first_plan.routes)
         P.extend(util.initialization(problem, evo_param.size-1, max_route))
     else:
         max_route = len(problem.customers)-1
@@ -140,12 +140,12 @@ def lem(evo_param, problem):
 
         for cus in problem.customers:
             cus.generate_actual_demand(evo_param.N)
-        for chro in P:
-            chro.RSM(evo_param.N, problem)  # 问题：在计算完RSM目标值后，应重新将所有客户需求设为平均值
-            for route in chro.routes:
+        for plan in P:
+            plan.RSM(evo_param.N, problem)  # 问题：在计算完RSM目标值后，应重新将所有客户需求设为平均值
+            for route in plan.routes:
                 route.set_mean_demand()
 
-        Q.extend([chro.copy() for chro in P])
+        Q.extend([plan.copy() for plan in P])
         #Q = util.deduplicate_objective(Q)
         Q = util.deduplicate(Q)
         if len(Q) > evo_param.size:
@@ -172,17 +172,17 @@ def lem(evo_param, problem):
             newP = util.instantiating(problem, evo_param.size, max_route, clf)
 
             if evo_param.spec_inst:
-                good = [chro.copy() for chro in Q]
-                for chro in newP:
-                    chro.mutation(problem, 0.4, 0.5, 0.5, 0.3)
-                for chro in good:
-                    chro.mutation(problem, 1, 0.5, 0.5, 0.3)
+                good = [plan.copy() for plan in Q]
+                for plan in newP:
+                    plan.mutation(problem, 0.4, 0.5, 0.5, 0.3)
+                for plan in good:
+                    plan.mutation(problem, 1, 0.5, 0.5, 0.3)
                 newP.extend(good)
 
         else:
-            newP = [chro.copy() for chro in P]
-            for chro in newP:
-                chro.mutation(problem, 0.4, 0.5, 0.5, 0.3)
+            newP = [plan.copy() for plan in P]
+            for plan in newP:
+                plan.mutation(problem, 0.4, 0.5, 0.5, 0.3)
 
         P = newP
 
@@ -190,7 +190,7 @@ def lem(evo_param, problem):
             result = util.cal_result(Q, evo_param.N, problem)[0]
             converge_trace_all.append(result)
             converge_trace_first.append(util.cal_result(util.pareto_first(Q), evo_param.N, problem)[0])
-            Q_trace.append([chro.copy() for chro in Q])
+            Q_trace.append([plan.copy() for plan in Q])
 
     #tree_str = tree.export_text(clf, feature_names=['customer '+str(i+1) for i in range(0, len(customers)-1)])
     # print(tree_str)
@@ -210,9 +210,9 @@ def random_mode(evo_param, problem):
 
         for cus in problem.customers:
             cus.generate_actual_demand(10)
-        for chro in Q:
-            chro.RSM(10, problem)
-            for route in chro.routes:
+        for plan in Q:
+            plan.RSM(10, problem)
+            for route in plan.routes:
                 route.set_mean_demand()
 
         Q = util.pareto_sort(Q, evo_param.size, 'DRV')
@@ -227,9 +227,9 @@ def old_moea(evo_param, problem):
     converge_trace_first = []
 
     P = []
-    first_chro = util.build_first_chromosome(problem)
-    P.append(first_chro)
-    max_route = len(first_chro.routes)
+    first_plan = util.build_first_plan(problem)
+    P.append(first_plan)
+    max_route = len(first_plan.routes)
     P.extend(util.initialization(problem, evo_param.size-1, max_route))
     Q = []
 
@@ -245,31 +245,31 @@ def old_moea(evo_param, problem):
 
         for cus in problem.customers:
             cus.generate_actual_demand(evo_param.N)
-        for chro in Q:
-            chro.RSM(evo_param.N, problem)  # 问题：在计算完RSM目标值后，应重新将所有客户需求设为平均值
-            for route in chro.routes:
+        for plan in Q:
+            plan.RSM(evo_param.N, problem)  # 问题：在计算完RSM目标值后，应重新将所有客户需求设为平均值
+            for route in plan.routes:
                 route.set_mean_demand()
 
         Q = util.pareto_sort(Q, evo_param.size, 'DRV')
-        P = [chro.copy() for chro in Q]
+        P = [plan.copy() for plan in Q]
         random.shuffle(P)
         for i in range(0, len(P)-1, 2):
             if random.random() < 0.7:
                 P[i].route_crossover(P[i+1], 0.3)
 
-        for chro in P:
-            chro.mutation(problem, 0.4, 0.5, 0.5, 0.3)
+        for plan in P:
+            plan.mutation(problem, 0.4, 0.5, 0.5, 0.3)
 
-            # for route in chro.routes:
+            # for route in plan.routes:
             #    route.set_mean_demand()
             # if local_search:
-            #    chro.local_search_exploitation_SPS()
-            #    chro.local_search_exploitation_WDS()
+            #    plan.local_search_exploitation_SPS()
+            #    plan.local_search_exploitation_WDS()
 
         if evo_param.trace:
             converge_trace_all.append(util.cal_result(Q, evo_param.N, problem)[0])
             converge_trace_first.append(util.cal_result(util.pareto_first(Q), evo_param.N, problem)[0])
-            Q_trace.append([chro.copy() for chro in Q])
+            Q_trace.append([plan.copy() for plan in Q])
 
     return Q, Q_trace, converge_trace_all, converge_trace_first
 
@@ -283,9 +283,9 @@ def old_lem(evo_param, problem):
 
     P = []
     if evo_param.spec_init:
-        first_chro = util.build_first_chromosome(problem)
-        P.append(first_chro)
-        max_route = len(first_chro.routes)
+        first_plan = util.build_first_plan(problem)
+        P.append(first_plan)
+        max_route = len(first_plan.routes)
         P.extend(util.initialization(problem, evo_param.size-1, max_route))
     else:
         max_route = len(problem.customers)-1
@@ -318,9 +318,9 @@ def old_lem(evo_param, problem):
 
         for cus in problem.customers:
             cus.generate_actual_demand(evo_param.N)
-        for chro in Q:
-            chro.RSM(evo_param.N, problem)  # 问题：在计算完RSM目标值后，应重新将所有客户需求设为平均值
-            for route in chro.routes:
+        for plan in Q:
+            plan.RSM(evo_param.N, problem)  # 问题：在计算完RSM目标值后，应重新将所有客户需求设为平均值
+            for route in plan.routes:
                 route.set_mean_demand()
 
         if len(evo_param.MOmode) == 1:
@@ -344,23 +344,23 @@ def old_lem(evo_param, problem):
             P = util.instantiating(problem, evo_param.size, max_route, clf)
 
             if evo_param.spec_inst:
-                origin = [chro.copy() for chro in Q]
-                for chro in origin:
-                    chro.mutation(problem, 1, 0.5, 0.5, 0.3)
-                for chro in P:
-                    chro.mutation(problem, 0.4, 0.5, 0.5, 0.3)
+                origin = [plan.copy() for plan in Q]
+                for plan in origin:
+                    plan.mutation(problem, 1, 0.5, 0.5, 0.3)
+                for plan in P:
+                    plan.mutation(problem, 0.4, 0.5, 0.5, 0.3)
                 P.extend(origin)
         else:
             #P = util.initialization(customers, C, B, size, max_route)
-            P = [chro.copy() for chro in Q]
-            for chro in P:
-                chro.mutation(problem, 0.4, 0.5, 0.5, 0.3)
+            P = [plan.copy() for plan in Q]
+            for plan in P:
+                plan.mutation(problem, 0.4, 0.5, 0.5, 0.3)
 
         if evo_param.trace:
             result = util.cal_result(Q, evo_param.N, problem)[0]
             converge_trace_all.append(result)
             converge_trace_first.append(util.cal_result(util.pareto_first(Q), evo_param.N, problem)[0])
-            Q_trace.append([chro.copy() for chro in Q])
+            Q_trace.append([plan.copy() for plan in Q])
 
     #tree_str = tree.export_text(clf, feature_names=['customer '+str(i+1) for i in range(0, len(customers)-1)])
     # print(tree_str)

@@ -115,7 +115,7 @@ class Route:
         self.set_mean_demand()
 
     def __repr__(self):
-        return 'route: '+' -> '.join([str(cus) for cus in self.customer_list])
+        return 'Route: '+' -> '.join([str(cus) for cus in self.customer_list])
 
     def copy(self):
         new_route = type(self)(self.customer_list)
@@ -128,8 +128,7 @@ class Route:
             if start == 1 and end == len(self.customer_list)-1:
                 continue
             break
-        new_route_customerlist = [self.customer_list[0]] + \
-            self.customer_list[start:end]+[self.customer_list[0]]
+        new_route_customerlist = [self.customer_list[0]]+self.customer_list[start:end]+[self.customer_list[0]]
         new_route = type(self)(new_route_customerlist)
         return new_route
 
@@ -195,8 +194,7 @@ class Route:
     def random_shuffle(self):
         tmp = self.customer_list[1:-1]
         random.shuffle(tmp)
-        self.customer_list = [self.customer_list[0]] + \
-            tmp+[self.customer_list[0]]
+        self.customer_list = [self.customer_list[0]]+tmp+[self.customer_list[0]]
 
 
 class Plan:
@@ -213,7 +211,7 @@ class Plan:
 
     def __repr__(self):
         num = len(self.routes)
-        retstr = 'Chromosome: 1 route' if num == 1 else 'Chromosome: {} routes'.format(num)
+        retstr = 'Plan: 1 route' if num == 1 else 'Plan: {} routes'.format(num)
         for route in self.routes:
             retstr += '\n'+' '*4+str(route)
         retstr += '\ndistance={}\npay={}'.format(self.distance, self.pay)
@@ -273,35 +271,35 @@ class Plan:
                 if len(route.customer_list) == 2:
                     self.routes.remove(route)
 
-    def route_crossover(self, other_chromosome, random_shuffling_rate):
+    def route_crossover(self, other_plan, random_shuffling_rate):
         if len(self.routes) != 1:
             r1 = self.routes[random.randint(0, len(self.routes)-1)].copy()
         else:
             r1 = self.routes[0].rand_seg_copy()
-        if len(other_chromosome.routes) != 1:
-            r2 = other_chromosome.routes[random.randint(0, len(other_chromosome.routes)-1)].copy()
+        if len(other_plan.routes) != 1:
+            r2 = other_plan.routes[random.randint(0, len(other_plan.routes)-1)].copy()
         else:
-            r2 = other_chromosome.routes[0].rand_seg_copy()
+            r2 = other_plan.routes[0].rand_seg_copy()
         self.routes.append(r2)
-        other_chromosome.routes.append(r1)
+        other_plan.routes.append(r1)
         self.__remove_duplicated_customers(-1)
-        other_chromosome.__remove_duplicated_customers(-1)
+        other_plan.__remove_duplicated_customers(-1)
 
         for route in self.routes:
             if len(route.customer_list) == 2:
                 self.routes.remove(route)
-        for route in other_chromosome.routes:
+        for route in other_plan.routes:
             if len(route.customer_list) == 2:
-                other_chromosome.routes.remove(route)
+                other_plan.routes.remove(route)
 
         for i in range(len(self.routes)-1):
             if random.random() < random_shuffling_rate:
                 self.routes[i].random_shuffle()
-        for i in range(len(other_chromosome.routes)-1):
+        for i in range(len(other_plan.routes)-1):
             if random.random() < random_shuffling_rate:
-                other_chromosome.routes[i].random_shuffle()
+                other_plan.routes[i].random_shuffle()
         #self.routes[random.randint(0, len(self.routes)-1)].random_shuffle()
-        #other_chromosome.routes[random.randint(0, len(other_chromosome.routes)-1)].random_shuffle()
+        #other_plan.routes[random.randint(0, len(other_plan.routes)-1)].random_shuffle()
 
     def __partial_swap(self):
         if len(self.routes) == 1:
@@ -373,13 +371,13 @@ class Plan:
 
 class VectorPlan:
     # 气泡优先级编码
-    def __init__(self, customers, chro=None, vector=None):
-        if chro != None:
-            chro.arrange()
-            route_num = len(chro.routes)
+    def __init__(self, customers, plan=None, vector=None):
+        if plan != None:
+            plan.arrange()
+            route_num = len(plan.routes)
             max_priority = len(customers)-1 + route_num-1
             self.vector = [0]*(len(customers)-1)
-            for route in chro.routes:
+            for route in plan.routes:
                 for cus in route.customer_list:
                     if cus.id != 0:
                         self.vector[cus.id-1] = max_priority
@@ -390,7 +388,7 @@ class VectorPlan:
             if vector != None:
                 self.vector = vector
 
-    def backto_chromo(self, customers):
+    def backto_plan(self, customers):
         max_priority = max(self.vector)
         routes = []
         customer_list = [customers[0]]
@@ -405,6 +403,6 @@ class VectorPlan:
                 if len(customer_list) > 2:
                     routes.append(Route(customer_list))
                 customer_list = [customers[0]]
-        chromo = Plan(routes)
+        plan = Plan(routes)
 
-        return chromo
+        return plan

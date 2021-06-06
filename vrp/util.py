@@ -6,10 +6,10 @@ import numpy as np
 #from numpy.core.fromnumeric import sort
 from sklearn import tree
 
-from .vrpclass import Customer, Route, Plan, VectorPlan
+from .vrpclass import Route, Plan, VectorPlan
 
 
-def build_first_chromosome(problem):
+def build_first_plan(problem):
     for customer in problem.customers:
         assert problem.capacity > customer.mean and problem.time_bound > customer.servicetime
     routes = []
@@ -129,7 +129,7 @@ def instantiating_sub(problem, max_route, positive_rule):
             select.remove(vector[i])
 
     assert None not in vector
-    return VectorPlan(problem.customers, vector=vector).backto_chromo(problem.customers)
+    return VectorPlan(problem.customers, vector=vector).backto_plan(problem.customers)
 
 
 def explain_tree(clf, customers):
@@ -162,41 +162,41 @@ def list_reverse_index(list_, target):
 
 def deduplicate(P):
     newP = []
-    for chro in P:
+    for plan in P:
         have_duplicate = False
-        for exist_chro in newP:
-            if chro.equal(exist_chro):
+        for exist_plan in newP:
+            if plan.equal(exist_plan):
                 have_duplicate = True
                 break
         if not have_duplicate:
-            newP.append(chro)
+            newP.append(plan)
     return newP
 
 
 def deduplicate_objective(P):
     newP = []
-    for chro in P:
+    for plan in P:
         have_duplicate = False
-        for exist_chro in newP:
-            if chro.equal_objective(exist_chro):
+        for exist_plan in newP:
+            if plan.equal_objective(exist_plan):
                 have_duplicate = True
                 break
         if not have_duplicate:
-            newP.append(chro)
+            newP.append(plan)
     return newP
 
 
 def pareto_sort(P, size, MOmode):
     objv = []
-    for chro in P:
+    for plan in P:
         if MOmode == 'DRV':
-            objv.append([chro.distance, chro.pay, len(chro.routes)])
+            objv.append([plan.distance, plan.pay, len(plan.routes)])
         elif MOmode == 'DR':
-            objv.append([chro.distance, chro.pay])
+            objv.append([plan.distance, plan.pay])
         elif MOmode == 'DV':
-            objv.append([chro.distance, len(chro.routes)])
+            objv.append([plan.distance, len(plan.routes)])
         elif MOmode == 'RV':
-            objv.append([chro.pay, len(chro.routes)])
+            objv.append([plan.pay, len(plan.routes)])
         else:
             print('error: wrong MOmode')
             exit()
@@ -219,11 +219,11 @@ def pareto_sort(P, size, MOmode):
 
 def target_sort(P, size, target):
     if target == 'D':
-        sortP = sorted(P, key=lambda chro: chro.distance)
+        sortP = sorted(P, key=lambda plan: plan.distance)
     elif target == 'R':
-        sortP = sorted(P, key=lambda chro: chro.pay)
+        sortP = sorted(P, key=lambda plan: plan.pay)
     elif target == 'V':
-        sortP = sorted(P, key=lambda chro: (len(chro.routes), chro.distance))
+        sortP = sorted(P, key=lambda plan: (len(plan.routes), plan.distance))
     else:
         print('error: wrong target')
         exit()
@@ -234,8 +234,8 @@ def target_sort(P, size, target):
 
 def indicator_HV(P):
     objv = []
-    for chro in P:
-        objv.append([chro.distance, chro.pay, len(chro.routes)])
+    for plan in P:
+        objv.append([plan.distance, plan.pay, len(plan.routes)])
     objv = np.array(objv)
     hv = ea.indicator.HV(objv)
     return hv
@@ -245,8 +245,8 @@ def indicator_Spacing(P):
     if len(P) <= 1:
         return 0
     objv = []
-    for chro in P:
-        objv.append([chro.distance, chro.pay, len(chro.routes)])
+    for plan in P:
+        objv.append([plan.distance, plan.pay, len(plan.routes)])
     objv = np.array(objv)
     sc = ea.indicator.Spacing(objv)
     return sc
@@ -257,24 +257,24 @@ def cal_result(result_population, N, problem):
     for cus in problem.customers:
         actual_demand_backup[cus.id] = cus.actual_demand.copy()
         cus.generate_actual_demand(N)
-    for chro in result_population:
-        chro.RSM(N, problem)
+    for plan in result_population:
+        plan.RSM(N, problem)
     for cus in problem.customers:
         cus.actual_demand = actual_demand_backup[cus.id]
 
     sum_routes = 0
     sum_distance = 0
     sum_pay = 0
-    for chro in result_population:
-        sum_routes += len(chro.routes)
-        sum_distance += chro.distance
-        sum_pay += chro.pay
+    for plan in result_population:
+        sum_routes += len(plan.routes)
+        sum_distance += plan.distance
+        sum_pay += plan.pay
     avg_routes = sum_routes/len(result_population)
     avg_distance = sum_distance/len(result_population)
     avg_pay = sum_pay/len(result_population)
 
     retstr = ''
-    retstr += 'sum chro number= '+str(len(result_population))+'\n'
+    retstr += 'sum plan number= '+str(len(result_population))+'\n'
     retstr += 'avg_routes: {}\navg_distance: {}\navg_pay: {}'.format(avg_routes, avg_distance, avg_pay)+'\n'
     hv = indicator_HV(result_population)
     spacing = indicator_Spacing(result_population)
@@ -291,25 +291,25 @@ def customers_sort_by_distance(customers):
         dis_index += 1
 
 
-def check_chro_legal(P, customers):
+def check_plan_legal(P, customers):
     cus_id = {cus.id for cus in customers}
-    for chro in P:
-        chro_cus_id = set()
+    for plan in P:
+        plan_cus_id = set()
         cus_num = 0
-        for route in chro.routes:
+        for route in plan.routes:
             for cus in route.customer_list:
-                chro_cus_id.add(cus.id)
+                plan_cus_id.add(cus.id)
                 cus_num += 1
             cus_num -= 2
         assert(cus_num == len(customers)-1)
-        assert(cus_id == chro_cus_id)
+        assert(cus_id == plan_cus_id)
     print('check passed')
 
 
 def pareto_first(P):
     objv = []
-    for chro in P:
-        objv.append([chro.distance, chro.pay, len(chro.routes)])
+    for plan in P:
+        objv.append([plan.distance, plan.pay, len(plan.routes)])
     objv = np.array(objv)
     levels, _ = ea.ndsortESS(objv)
     Pfirst = []

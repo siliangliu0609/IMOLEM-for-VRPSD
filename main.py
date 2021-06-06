@@ -55,7 +55,7 @@ evo_param = vrpclass.Evo_param(size=size, maxiter=maxiter, N=N, trace=trace, MOm
 
 Q, Q_trace, converge_trace_all, converge_trace_first = eval('modes.{mode}(evo_param, problem)'.format(mode=mode))
 
-util.check_chro_legal(Q, problem.customers)
+util.check_plan_legal(Q, problem.customers)
 
 # 检查存结果的文件夹
 if not os.path.exists('result/'+dataset):
@@ -76,10 +76,10 @@ out_file.write('All solutions:\n'+util.cal_result(Q, evo_param.N, problem)[1]+'\
 Qfirst = util.pareto_first(Q)
 out_file.write('Non-dominated solutions:\n'+util.cal_result(Qfirst, evo_param.N, problem)[1]+'\n\n')
 
-for num, chro in enumerate(Q):
+for num, plan in enumerate(Q):
     if num == len(Qfirst):
         out_file.write('-'*20+'Above solutions are non-dominated.'+'-'*20+'\n\n')
-    out_file.write(str(chro)+'\n\n')
+    out_file.write(str(plan)+'\n\n')
 
 for t in converge_trace_all:
     trace_all_file.write("{} {} {} {} {}\n".format(t[0], t[1], t[2], t[3], t[4]))

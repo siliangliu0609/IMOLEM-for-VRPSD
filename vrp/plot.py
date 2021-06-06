@@ -58,10 +58,10 @@ def plot_population_trace(datamaps, modes):
             D = []
             R = []
             for Q in Q_trace:
-                for chro in Q:
-                    V.append(len(chro.routes))
-                    D.append(chro.distance)
-                    R.append(chro.pay)
+                for plan in Q:
+                    V.append(len(plan.routes))
+                    D.append(plan.distance)
+                    R.append(plan.pay)
 
             plt.figure(datamap+mode+'0')
             ax = plt.axes(projection='3d')
@@ -116,10 +116,10 @@ def plot_population_last(datamaps, modes):
             V = []
             D = []
             R = []
-            for chro in Q:
-                V.append(len(chro.routes))
-                D.append(chro.distance)
-                R.append(chro.pay)
+            for plan in Q:
+                V.append(len(plan.routes))
+                D.append(plan.distance)
+                R.append(plan.pay)
 
             plt.figure(datamap+mode+'0')
             ax = plt.axes(projection='3d')
