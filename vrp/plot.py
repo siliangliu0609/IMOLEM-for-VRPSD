@@ -60,15 +60,23 @@ def plot_population_trace(datamaps, modes):
             V = []
             D = []
             R = []
-            for Q in Q_trace:
+            for Q in Q_trace[:-1]:
                 for plan in Q:
                     V.append(len(plan.routes))
                     D.append(plan.distance)
                     R.append(plan.pay)
+            V_last = []
+            D_last = []
+            R_last = []
+            for plan in Q_trace[-1]:
+                V_last.append(len(plan.routes))
+                D_last.append(plan.distance)
+                R_last.append(plan.pay)
 
             plt.figure(datamap+mode+'0')
             ax = plt.axes(projection='3d')
             ax.scatter3D(V, D, R, s=5)
+            ax.scatter3D(V_last, D_last, R_last, s=10, color='r')
             ax.set_xlabel('Number of vehicles')
             ax.set_ylabel('Travel distance')
             ax.set_zlabel('Driver remuneration')
@@ -79,6 +87,7 @@ def plot_population_trace(datamaps, modes):
             plt.figure(datamap+mode+'1')
             ax = plt.subplot()
             ax.scatter(D, R, s=5)
+            ax.scatter(D_last, R_last, s=10, color='r')
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Driver remuneration')
             plt.tight_layout()
@@ -88,6 +97,7 @@ def plot_population_trace(datamaps, modes):
             plt.figure(datamap+mode+'2')
             ax = plt.subplot()
             ax.scatter(D, V, s=5)
+            ax.scatter(D_last, V_last, s=10, color='r')
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Number of Vehicles')
             plt.tight_layout()
@@ -97,6 +107,7 @@ def plot_population_trace(datamaps, modes):
             plt.figure(datamap+mode+'3')
             ax = plt.subplot()
             ax.scatter(R, V, s=5)
+            ax.scatter(R_last, V_last, s=10, color='r')
             ax.set_xlabel('Driver remuneration')
             ax.set_ylabel('Number of Vehicles')
             plt.tight_layout()
