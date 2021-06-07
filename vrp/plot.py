@@ -1,6 +1,8 @@
-import matplotlib.pyplot as plt
-import pickle
 import os
+import pickle
+import matplotlib.pyplot as plt
+
+from . import util
 
 
 def plot_trace(datamaps, modes, labels, titles, save, trace, linestyles):
@@ -45,7 +47,7 @@ def plot_trace(datamaps, modes, labels, titles, save, trace, linestyles):
 
 def plot_population_trace(datamaps, modes):
     for datamap in datamaps:
-        
+
         if not os.path.exists('pic/'+datamap):
             os.mkdir('pic/'+datamap)
 
@@ -102,6 +104,7 @@ def plot_population_trace(datamaps, modes):
 
             # plt.show()
 
+
 def plot_population_last(datamaps, modes):
     for datamap in datamaps:
 
@@ -112,6 +115,9 @@ def plot_population_last(datamaps, modes):
 
             Qf = open('result/{}/{}_population.pickle'.format(datamap, mode), 'rb')
             Q = pickle.load(Qf)
+            Q_first = util.pareto_first(Q)
+            for plan in Q_first:
+                Q.remove(plan)
 
             V = []
             D = []
@@ -120,20 +126,29 @@ def plot_population_last(datamaps, modes):
                 V.append(len(plan.routes))
                 D.append(plan.distance)
                 R.append(plan.pay)
+            V_first = []
+            D_first = []
+            R_first = []
+            for plan in Q_first:
+                V_first.append(len(plan.routes))
+                D_first.append(plan.distance)
+                R_first.append(plan.pay)
 
             plt.figure(datamap+mode+'0')
             ax = plt.axes(projection='3d')
             ax.scatter3D(V, D, R, s=1)
+            ax.scatter3D(V_first, D_first, R_first, s=2, color='r')
             ax.set_xlabel('Number of vehicles')
             ax.set_ylabel('Travel distance')
             ax.set_zlabel('Driver remuneration')
 
             plt.tight_layout()
-            plt.savefig('pic/{}/{}_{}_space_3d_trace.png'.format(datamap, datamap, mode))
+            plt.savefig('pic/{}/{}_{}_space_3d.png'.format(datamap, datamap, mode))
 
             plt.figure(datamap+mode+'1')
             ax = plt.subplot()
             ax.scatter(D, R, s=1)
+            ax.scatter(D_first, R_first, s=2, color='r')
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Driver remuneration')
 
@@ -143,6 +158,7 @@ def plot_population_last(datamaps, modes):
             plt.figure(datamap+mode+'2')
             ax = plt.subplot()
             ax.scatter(D, V, s=1)
+            ax.scatter(D_first, V_first, s=2, color='r')
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Number of Vehicles')
 
@@ -152,6 +168,7 @@ def plot_population_last(datamaps, modes):
             plt.figure(datamap+mode+'3')
             ax = plt.subplot()
             ax.scatter(R, V, s=1)
+            ax.scatter(R_first, V_first, s=2, color='r')
             ax.set_xlabel('Driver remuneration')
             ax.set_ylabel('Number of Vehicles')
 

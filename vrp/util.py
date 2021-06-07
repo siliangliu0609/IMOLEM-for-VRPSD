@@ -1,9 +1,6 @@
 import random
+import numpy as np
 import geatpy as ea
-import numpy as np
-#import matplotlib.pyplot as plt
-import numpy as np
-#from numpy.core.fromnumeric import sort
 from sklearn import tree
 
 from .vrpclass import Route, Plan, VectorPlan
@@ -186,7 +183,7 @@ def deduplicate_objective(P):
     return newP
 
 
-def pareto_sort(P, size, MOmode):
+def pareto_sort(P, needNum=None, needLevel=None, MOmode='DRV'):
     objv = []
     for plan in P:
         if MOmode == 'DRV':
@@ -201,7 +198,7 @@ def pareto_sort(P, size, MOmode):
             print('error: wrong MOmode')
             exit()
     objv = np.array(objv)
-    levels, criLevel = ea.ndsortESS(objv, size)
+    levels, criLevel = ea.ndsortESS(objv, needNum, needLevel)
     dis = ea.crowdis(objv, levels)
     sortP = []
     for lv in range(1, criLevel):
@@ -211,8 +208,8 @@ def pareto_sort(P, size, MOmode):
             sortP.append(P[i[0]])
     indexs = np.argwhere(levels == criLevel)
     indexs_sorted = sorted(indexs, key=lambda x: dis[x[0]], reverse=True)
-    for i in indexs:
-        if len(sortP) < size:
+    for i in indexs_sorted:
+        if len(sortP) < needNum:
             sortP.append(P[i[0]])
     return sortP
 
@@ -227,8 +224,8 @@ def target_sort(P, size, target):
     else:
         print('error: wrong target')
         exit()
-    if len(P) > 100:
-        sortP = sortP[:100]
+    if len(P) > size:
+        sortP = sortP[:size]
     return sortP
 
 
@@ -262,6 +259,27 @@ def cal_result(result_population, N, problem):
     for cus in problem.customers:
         cus.actual_demand = actual_demand_backup[cus.id]
 
+    sum_routes = 0
+    sum_distance = 0
+    sum_pay = 0
+    for plan in result_population:
+        sum_routes += len(plan.routes)
+        sum_distance += plan.distance
+        sum_pay += plan.pay
+    avg_routes = sum_routes/len(result_population)
+    avg_distance = sum_distance/len(result_population)
+    avg_pay = sum_pay/len(result_population)
+
+    retstr = ''
+    retstr += 'sum plan number= '+str(len(result_population))+'\n'
+    retstr += 'avg_routes: {}\navg_distance: {}\navg_pay: {}'.format(avg_routes, avg_distance, avg_pay)+'\n'
+    hv = indicator_HV(result_population)
+    spacing = indicator_Spacing(result_population)
+    retstr += 'hv: '+str(hv)+'\n'+'spacing: '+str(spacing)
+    return (avg_routes, avg_distance, avg_pay, hv, spacing), retstr
+
+
+def show_result(result_population, *argl):
     sum_routes = 0
     sum_distance = 0
     sum_pay = 0

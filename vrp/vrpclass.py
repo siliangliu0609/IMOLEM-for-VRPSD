@@ -1,3 +1,4 @@
+import math
 import random
 import numpy as np
 
@@ -50,11 +51,16 @@ class Problem:
             cus_no, x_coord, y_coord, demand, _, due_date, service_time = [float(x) for x in line.split()]
             # if cus_no == 11:
             #   break
+            # if cus_no == 0:
+            #    self.time_bound = 0.8*due_date
             if cus_no == 0:
-                self.time_bound = 0.8*due_date
+                service_time = 10
+            else:
+                service_time = demand-10 if demand-10 >= 1 else 1
             standard_deviation = sd[int(cus_no)]
             cus = Customer(int(cus_no), x_coord, y_coord, demand, standard_deviation, service_time)
             self.customers.append(cus)
+        self.time_bound = math.ceil(self.cal_time_bound())
         fp.close()
 
     def __read_dt86_data(self):
@@ -83,6 +89,23 @@ class Problem:
         else:
             assert('wrong map type')
 
+    def cal_time_bound(self, show=False):
+        xs = []
+        ys = []
+
+        for cus in self.customers:
+            xs.append(cus.x)
+            ys.append(cus.y)
+
+        max_x = max(xs)
+        max_y = max(ys)
+
+        double_diagonal = (max_x**2+max_y**2)**0.5*2
+
+        if show:
+            print('max_x = {}\nmax_y = {}\ndouble_diagonal = {}'.format(max_x, max_y, double_diagonal))
+        return double_diagonal
+
 
 class Customer:
     def __init__(self, id, x, y, mean, standard_deviation, servicetime):
@@ -110,15 +133,24 @@ class Customer:
 
 
 class Route:
-    def __init__(self, customer_list):
+    def __init__(self, customer_list, restock_time=None):
         self.customer_list = customer_list[:]
+        self.restock_time = restock_time
         self.set_mean_demand()
 
     def __repr__(self):
-        return 'Route: '+' -> '.join([str(cus) for cus in self.customer_list])
+        retstr = 'Route: '+' -> '.join([str(cus) for cus in self.customer_list])
+        if self.restock_time:
+            return retstr+' , restock time={}'.format(self.restock_time)
+        else:
+            return retstr
+
+    def __getitem__(self, i):
+        return self.customer_list[i]
 
     def copy(self):
-        new_route = type(self)(self.customer_list)
+        # 这里使用copy.deepcopy会导致客户内容也被复制
+        new_route = type(self)(self.customer_list, self.restock_time)  # list没有复制是因为构造时会复制，复制到客户引用即可，不必复制客户内容
         return new_route
 
     def rand_seg_copy(self):
@@ -145,6 +177,7 @@ class Route:
     def distance_time_consume(self, problem, show=False):
         sum_distance = 0
         sum_time = 0
+        restock_time = 0
         remain_goods = problem.capacity
         now = 0
         goto = 1
@@ -165,6 +198,7 @@ class Route:
                     print("from {} to {},remain:{}".format(now, goto, 0))
                     print("from {} to {},remain:{}".format(goto, 0, problem.capacity))
                 now = 0
+                restock_time += 1
                 goto += 1
             else:
                 sum_distance += self.customer_list[goto].get_distance(self.customer_list[now])+self.customer_list[goto].get_distance(self.customer_list[0])
@@ -175,10 +209,13 @@ class Route:
                     print("from {} to {},remain:{}".format(now, goto, 0))
                     print("from {} to {},remain:{}".format(goto, 0, problem.capacity))
                 now = 0
-        return sum_distance, sum_time
+                restock_time += 1
+                # goto不变，因为需要回去继续服务
+        #self.restock_time = restock_time
+        return sum_distance, sum_time, restock_time
 
     def pay_consume(self, problem):
-        _, time_consume = self.distance_time_consume(problem)
+        _, time_consume, *_ = self.distance_time_consume(problem)
         if time_consume <= problem.time_bound:
             pay = problem.normal_hours/problem.time_bound*time_consume*problem.normal_salary
         else:
@@ -195,6 +232,13 @@ class Route:
         tmp = self.customer_list[1:-1]
         random.shuffle(tmp)
         self.customer_list = [self.customer_list[0]]+tmp+[self.customer_list[0]]
+
+    def cal_restock_time_with_mean_demand(self, problem):
+        backup = self.actual_demand_list[:]
+        self.set_mean_demand()
+        *_, restock_time = self.distance_time_consume(problem)
+        self.restock_time = restock_time
+        self.actual_demand_list = backup
 
 
 class Plan:
@@ -216,6 +260,9 @@ class Plan:
             retstr += '\n'+' '*4+str(route)
         retstr += '\ndistance={}\npay={}'.format(self.distance, self.pay)
         return retstr
+
+    def __getitem__(self, i):
+        return self.routes[i]
 
     def arrange(self):
         self.routes = sorted(self.routes, key=lambda route: route.customer_list[1].id)
@@ -242,22 +289,22 @@ class Plan:
 
     def local_search_exploitation_SPS(self, problem):
         for index, route in enumerate(self.routes):
-            old_distance, _ = route.distance_time_consume(problem)
+            old_distance, *_ = route.distance_time_consume(problem)
             new_route_customer_list = route.customer_list[1:-1]
             new_route_customer_list = sorted(new_route_customer_list, key=lambda customer: customer.get_distance(route.customer_list[0]), reverse=True)
             new_route_customer_list = [route.customer_list[0]]+new_route_customer_list+[route.customer_list[0]]
             new_route = Route(new_route_customer_list)
-            new_distance, _ = new_route.distance_time_consume(problem)
+            new_distance, *_ = new_route.distance_time_consume(problem)
             if new_distance < old_distance:
                 self.routes[index] = new_route
 
     def local_search_exploitation_WDS(self, problem):
         for index, route in enumerate(self.routes):
-            old_distance, _ = route.distance_time_consume(problem)
+            old_distance, *_ = route.distance_time_consume(problem)
             new_route_customer_list = route.customer_list[:]
             new_route_customer_list.reverse()
             new_route = Route(new_route_customer_list)
-            new_distance, _ = new_route.distance_time_consume(problem)
+            new_distance, *_ = new_route.distance_time_consume(problem)
             if new_distance < old_distance:
                 self.routes[index] = new_route
 
@@ -358,7 +405,7 @@ class Plan:
         for i in range(N):
             for route in self.routes:
                 route.set_one_actual_demand(i)
-                distance, _ = route.distance_time_consume(problem)
+                distance, *_ = route.distance_time_consume(problem)
                 pay = route.pay_consume(problem)
                 sum_distance += distance
                 sum_pay += pay
