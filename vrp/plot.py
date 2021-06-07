@@ -41,6 +41,7 @@ def plot_trace(datamaps, modes, labels, titles, save, trace, linestyles):
             plt.figure(datamap+str(i))
             plt.tight_layout()
             plt.savefig('pic/{}/{}_{}.png'.format(datamap, datamap, save[i]))
+            plt.close()
 
     # plt.show()
 
@@ -67,40 +68,40 @@ def plot_population_trace(datamaps, modes):
 
             plt.figure(datamap+mode+'0')
             ax = plt.axes(projection='3d')
-            ax.scatter3D(V, D, R, s=1)
+            ax.scatter3D(V, D, R, s=5)
             ax.set_xlabel('Number of vehicles')
             ax.set_ylabel('Travel distance')
             ax.set_zlabel('Driver remuneration')
-
             plt.tight_layout()
             plt.savefig('pic/{}/{}_{}_space_3d_trace.png'.format(datamap, datamap, mode))
+            plt.close()
 
             plt.figure(datamap+mode+'1')
             ax = plt.subplot()
-            ax.scatter(D, R, s=1)
+            ax.scatter(D, R, s=5)
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Driver remuneration')
-
             plt.tight_layout()
             plt.savefig('pic/{}/{}_{}_space_2d_DR_trace.png'.format(datamap, datamap, mode))
+            plt.close()
 
             plt.figure(datamap+mode+'2')
             ax = plt.subplot()
-            ax.scatter(D, V, s=1)
+            ax.scatter(D, V, s=5)
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Number of Vehicles')
-
             plt.tight_layout()
             plt.savefig('pic/{}/{}_{}_space_2d_DV_trace.png'.format(datamap, datamap, mode))
+            plt.close()
 
             plt.figure(datamap+mode+'3')
             ax = plt.subplot()
-            ax.scatter(R, V, s=1)
+            ax.scatter(R, V, s=5)
             ax.set_xlabel('Driver remuneration')
             ax.set_ylabel('Number of Vehicles')
-
             plt.tight_layout()
             plt.savefig('pic/{}/{}_{}_space_2d_RV_trace.png'.format(datamap, datamap, mode))
+            plt.close()
 
             # plt.show()
 
@@ -136,43 +137,43 @@ def plot_population_last(datamaps, modes):
 
             plt.figure(datamap+mode+'0')
             ax = plt.axes(projection='3d')
-            ax.scatter3D(V, D, R, s=1)
-            ax.scatter3D(V_first, D_first, R_first, s=2, color='r')
+            ax.scatter3D(V, D, R, marker='x', color='b', s=10)
+            ax.scatter3D(V_first, D_first, R_first, marker='o', color='r', s=10)
             ax.set_xlabel('Number of vehicles')
             ax.set_ylabel('Travel distance')
             ax.set_zlabel('Driver remuneration')
-
             plt.tight_layout()
             plt.savefig('pic/{}/{}_{}_space_3d.png'.format(datamap, datamap, mode))
+            plt.close()
 
             plt.figure(datamap+mode+'1')
             ax = plt.subplot()
-            ax.scatter(D, R, s=1)
-            ax.scatter(D_first, R_first, s=2, color='r')
+            ax.scatter(D, R, marker='x', color='b')
+            ax.scatter(D_first, R_first, marker='o', color='r')
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Driver remuneration')
-
             plt.tight_layout()
             plt.savefig('pic/{}/{}_{}_space_2d_DR.png'.format(datamap, datamap, mode))
+            plt.close()
 
             plt.figure(datamap+mode+'2')
             ax = plt.subplot()
-            ax.scatter(D, V, s=1)
-            ax.scatter(D_first, V_first, s=2, color='r')
+            ax.scatter(D, V, marker='x', color='b')
+            ax.scatter(D_first, V_first, marker='o', color='r')
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Number of Vehicles')
-
             plt.tight_layout()
             plt.savefig('pic/{}/{}_{}_space_2d_DV.png'.format(datamap, datamap, mode))
+            plt.close()
 
             plt.figure(datamap+mode+'3')
             ax = plt.subplot()
-            ax.scatter(R, V, s=1)
-            ax.scatter(R_first, V_first, s=2, color='r')
+            ax.scatter(R, V, marker='x', color='b')
+            ax.scatter(R_first, V_first, marker='o', color='r')
             ax.set_xlabel('Driver remuneration')
             ax.set_ylabel('Number of Vehicles')
-
             plt.tight_layout()
             plt.savefig('pic/{}/{}_{}_space_2d_RV.png'.format(datamap, datamap, mode))
+            plt.close()
 
             # plt.show()

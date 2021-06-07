@@ -19,7 +19,7 @@ def moea(evo_param, problem):
     Q = []  # 归档种群
 
     for iter in range(evo_param.maxiter):
-        print('moea iter {}...'.format(iter))
+        print('moea iter {} at {}...'.format(iter, problem.name))
 
         local_search = False
         if iter % 50 == 0:
@@ -100,7 +100,8 @@ def moea(evo_param, problem):
 
 
 def lem(evo_param, problem):
-    print('MOmode is {}'.format(evo_param.MOmode))
+    if evo_param.MOmode != 'DRV':
+        print('MOmode is {}'.format(evo_param.MOmode))
 
     Q_trace = []
     converge_trace_all = []
@@ -126,13 +127,16 @@ def lem(evo_param, problem):
 
     for iter in range(evo_param.maxiter):
         if evo_param.spec_init == True and evo_param.spec_inst == True:
-            print('lem iter {}...'.format(iter))
+            variety = ''
         elif evo_param.spec_init == False and evo_param.spec_inst == True:
-            print('lem v1 iter {}...'.format(iter))
+            variety = 'V1'
         elif evo_param.spec_init == True and evo_param.spec_inst == False:
-            print('lem v2 iter {}...'.format(iter))
+            variety = 'V2'
         else:
-            print('lem v3 iter {}...'.format(iter))
+            variety = 'V3'
+        if evo_param.no_tree == True and evo_param.spec_init == True and evo_param.spec_inst == True:
+            variety = 'NoL'
+        print('lem{} iter {} at {}...'.format(variety, iter, problem.name))
 
         if iter % 20 == 0:
             vectors = []
@@ -204,7 +208,7 @@ def random_evo(evo_param, problem):
     Q = []
 
     for iter in range(evo_param.maxiter):
-        print('random iter {}...'.format(iter))
+        print('random iter {} at {}...'.format(iter, problem.name))
 
         for cus in problem.customers:
             cus.generate_actual_demand(evo_param.N)
@@ -248,13 +252,14 @@ def lem_explore(evo_param, problem):
 
     for iter in range(evo_param.maxiter):
         if evo_param.spec_init == True and evo_param.spec_inst == True:
-            print('lem iter {}...'.format(iter))
+            variety = ''
         elif evo_param.spec_init == False and evo_param.spec_inst == True:
-            print('lem v1 iter {}...'.format(iter))
+            variety = ' v1'
         elif evo_param.spec_init == True and evo_param.spec_inst == False:
-            print('lem v2 iter {}...'.format(iter))
+            variety = ' v2'
         else:
-            print('lem v3 iter {}...'.format(iter))
+            variety = ' v3'
+        print('lem{} iter {} at {}...'.format(variety, iter, problem.name))
 
         if iter % 20 == 0:
             vectors = []

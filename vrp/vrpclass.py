@@ -16,7 +16,7 @@ class Evo_param:
 
 
 class Problem:
-    def __init__(self, map_file, map_type, normal_hours=8, normal_salary=10, over_salary=20, standard_deviation_file=None, standard_deviation_target=None, customers=None, capacity=None, time_bound=None):
+    def __init__(self, map_file, map_type, normal_hours=8, normal_salary=10, over_salary=20, standard_deviation_file=None, standard_deviation_target=None, customers=None, capacity=None, time_bound=None, name=None):
         self.map_file = map_file
         self.map_type = map_type
         self.standard_deviation_file = standard_deviation_file
@@ -29,6 +29,8 @@ class Problem:
         self.normal_hours = normal_hours
         self.normal_salary = normal_salary
         self.over_salary = over_salary
+
+        self.name = name
 
     def __read_standard_deviation(self):
         fp = open(self.standard_deviation_file)
@@ -140,7 +142,7 @@ class Route:
 
     def __repr__(self):
         retstr = 'Route: '+' -> '.join([str(cus) for cus in self.customer_list])
-        if self.restock_time:
+        if self.restock_time != None:
             return retstr+' , restock time={}'.format(self.restock_time)
         else:
             return retstr

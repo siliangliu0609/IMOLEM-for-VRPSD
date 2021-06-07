@@ -10,7 +10,7 @@ import vrp.plot as pl
 
 
 def evo():
-    # 输入参数   
+    # 输入参数
     mode = sys.argv[2]  # lem, moea...
     dataset = sys.argv[3]  # c101, dt86...
     extra_name = ''
@@ -23,9 +23,9 @@ def evo():
             extra_name = '_DRV'+extra_name
 
     # 设置参数
-    trace = False
+    trace = True
     size = 100
-    maxiter = 100
+    maxiter = 200
     N = 10
     normal_hours = 8
     normal_salary = 10
@@ -41,25 +41,32 @@ def evo():
     spec_init = True
     spec_inst = True
     no_tree = False
-    if mode == 'lemv1':
-        spec_init = False
-    elif mode == 'lemv2':
-        spec_inst = False
-    elif mode == 'lemv3':
-        spec_init = False
-        spec_inst = False
-    elif mode == 'lem_no_tree':
-        no_tree = True
+    tmp = None
+    if mode in ['lemV1', 'lemV2', 'lemV3', 'lemNoL']:
+        tmp = mode
+        if mode == 'lemV1':
+            spec_init = False
+        elif mode == 'lemV2':
+            spec_inst = False
+        elif mode == 'lemV3':
+            spec_init = False
+            spec_inst = False
+        elif mode == 'lemNoL':
+            no_tree = True
+        mode = 'lem'
 
     # 调用流程
-    problem = vrpclass.Problem(map_file, map_type, normal_hours, normal_salary, over_salary, standard_deviation_file, standard_deviation_target=dataset)
+    problem = vrpclass.Problem(map_file, map_type, normal_hours, normal_salary, over_salary, standard_deviation_file, standard_deviation_target=dataset, name=dataset+extra_name)
     problem.read_data()
 
     evo_param = vrpclass.Evo_param(size=size, maxiter=maxiter, N=N, trace=trace, MOmode=MOmode, spec_init=spec_init, spec_inst=spec_inst, no_tree=no_tree)
 
-    Q, Q_trace, converge_trace_all, converge_trace_first = eval('modes.{mode}(evo_param, problem)'.format(mode=mode))
+    Q, Q_trace, converge_trace_all, converge_trace_first = eval('modes.{}(evo_param, problem)'.format(mode))
 
     util.check_plan_legal(Q, problem.customers)
+
+    if tmp != None:
+        mode = tmp
 
     # 检查存结果的文件夹
     if not os.path.exists('result/'+dataset):
@@ -103,17 +110,18 @@ def fig():
 
     if mode == 0:
 
-        datamaps = ['c101']
-        #modes = ['lem', 'lem_DRV_DR', 'lem_DRV_DV', 'lem_DRV_RV', 'lem_DRV_D', 'lem_DRV_R', 'lem_DRV_V', ]
-        modes = ['moea']
+        #datamaps = ['c101']
+        datamaps = ['dt86']
+        #modes = ['lem', 'lem_DRV_DR', 'lem_DRV_DV', 'lem_DRV_RV', 'lem_DRV_D', 'lem_DRV_R', 'lem_DRV_V']
+        modes = ['lem', 'moea']
 
-        pl.plot_population_trace(datamaps, modes, '_trace')
+        pl.plot_population_trace(datamaps, modes)
 
     elif mode == 1:
 
-        datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
-        #datamaps = ['c201']
-        modes = ['lem', 'dar']
+        #datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
+        datamaps = ['dt86']
+        modes = ['lem', 'moea']
         labels = ['IMOLEM', 'MOEA']
 
         titles = ['Travel distance', 'Driver remuneration', 'Travel distance * Driver remuneration']
@@ -141,7 +149,6 @@ def fig():
     elif mode == 3:
 
         datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
-        #datamaps = ['c201']
         modes = ['lem', 'lemv1', 'lemv2', 'lemv3']
         labels = ['IMOLEM', 'Variant-I', 'Variant-II', 'Variant-III']
 
@@ -155,9 +162,10 @@ def fig():
 
     elif mode == 4:
 
+        #datamaps = ['dt86', 'c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
         datamaps = ['dt86']
         #modes = ['lem', 'lem_DRV_DR', 'lem_DRV_DV', 'lem_DRV_RV', 'lem_DRV_D', 'lem_DRV_R', 'lem_DRV_V', ]
-        modes = ['lem', 'moea']
+        modes = ['moea', 'lem']
 
         pl.plot_population_last(datamaps, modes)
 
