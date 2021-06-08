@@ -153,7 +153,10 @@ def lem(evo_param, problem):
         #Q = util.deduplicate_objective(Q)
         Q = util.deduplicate(Q)
         if len(Q) > evo_param.size:
-            Q = util.pareto_sort(Q, evo_param.size, MOmode=evo_param.MOmode)
+            if len(evo_param.MOmode) == 1:
+                Q = util.target_sort(Q, evo_param.size, evo_param.MOmode)
+            else:
+                Q = util.pareto_sort(Q, evo_param.size, MOmode=evo_param.MOmode)
 
         if len(evo_param.MOmode) == 1:
             P = util.target_sort(P, evo_param.size, evo_param.MOmode)
@@ -173,22 +176,22 @@ def lem(evo_param, problem):
 
             clf.fit(vectors, category)
 
-            newP = util.instantiating(problem, evo_param.size, max_route, clf)
-
             if evo_param.spec_inst:
-                good = [plan.copy() for plan in Q]
-                for plan in newP:
-                    plan.mutation(problem, 0.4, 0.5, 0.5, 0.3)
+                newP = util.instantiating(problem, evo_param.size//2, max_route, clf)
+                good = [plan.copy() for plan in Q[:evo_param.size//2]]
+                # for plan in newP:
+                #    plan.mutation(problem, 0.4, 0.5, 0.5, 0.3)
                 for plan in good:
                     plan.mutation(problem, 1, 0.5, 0.5, 0.3)
                 newP.extend(good)
+                P = newP
+            else:
+                P = util.instantiating(problem, evo_param.size, max_route, clf)
 
         else:
-            newP = [plan.copy() for plan in P]
-            for plan in newP:
+            #newP = [plan.copy() for plan in P]
+            for plan in P:
                 plan.mutation(problem, 0.4, 0.5, 0.5, 0.3)
-
-        P = newP
 
         if evo_param.trace:
             result = util.show_result(Q, evo_param.N, problem)[0]

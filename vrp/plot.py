@@ -7,6 +7,7 @@ from . import util
 
 def plot_trace(datamaps, modes, labels, titles, save, trace, linestyles):
     for datamap in datamaps:
+        print('ploting {}'.format(datamap))
 
         if not os.path.exists('pic/'+datamap):
             os.mkdir('pic/'+datamap)
@@ -53,6 +54,7 @@ def plot_population_trace(datamaps, modes):
             os.mkdir('pic/'+datamap)
 
         for mode in modes:
+            print('ploting {} {}'.format(datamap, mode))
 
             Qf = open('result/{}/{}_population_trace.pickle'.format(datamap, mode), 'rb')
             Q_trace = pickle.load(Qf)
@@ -124,6 +126,7 @@ def plot_population_last(datamaps, modes):
             os.mkdir('pic/'+datamap)
 
         for mode in modes:
+            print('ploting {} {}'.format(datamap, mode))
 
             Qf = open('result/{}/{}_population.pickle'.format(datamap, mode), 'rb')
             Q = pickle.load(Qf)

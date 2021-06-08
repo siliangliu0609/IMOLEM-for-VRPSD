@@ -64,6 +64,8 @@ def initialization(problem, size, max_route):
 def instantiating(problem, size, max_route, tree):
     Q = []
     rules = explain_tree(tree, problem.customers)
+    if '1' not in rules:
+        return initialization(problem, size, max_route)
 
     positive_rules = []
     for positive_rule in rules['1']:
@@ -195,8 +197,7 @@ def pareto_sort(P, needNum=None, needLevel=None, MOmode='DRV'):
         elif MOmode == 'RV':
             objv.append([plan.pay, len(plan.routes)])
         else:
-            print('error: wrong MOmode')
-            exit()
+            assert('error: wrong MOmode')
     objv = np.array(objv)
     levels, criLevel = ea.ndsortESS(objv, needNum, needLevel)
     dis = ea.crowdis(objv, levels)
@@ -222,8 +223,7 @@ def target_sort(P, size, target):
     elif target == 'V':
         sortP = sorted(P, key=lambda plan: (len(plan.routes), plan.distance))
     else:
-        print('error: wrong target')
-        exit()
+        assert('error: wrong target')
     if len(P) > size:
         sortP = sortP[:size]
     return sortP

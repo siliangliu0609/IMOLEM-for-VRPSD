@@ -110,10 +110,10 @@ def fig():
 
     if mode == 0:
 
+        datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
         #datamaps = ['c101']
-        datamaps = ['dt86']
-        #modes = ['lem', 'lem_DRV_DR', 'lem_DRV_DV', 'lem_DRV_RV', 'lem_DRV_D', 'lem_DRV_R', 'lem_DRV_V']
-        modes = ['lem', 'moea']
+        modes = ['lem', 'moea', 'lem_DRV_DR', 'lem_DRV_DV', 'lem_DRV_RV', 'lem_DRV_D', 'lem_DRV_R', 'lem_DRV_V']
+        #modes = ['lem', 'moea']
 
         pl.plot_population_trace(datamaps, modes)
 
@@ -170,7 +170,7 @@ def fig():
 
 
 def table():
-    arglist = ['lem_dar', 'mo', 'noLearn', 'v123']
+    arglist = ['comparison', 'mo', 'noLearn', 'v123']
 
     if sys.argv[2].isnumeric():
         mode = int(sys.argv[2])
@@ -179,7 +179,7 @@ def table():
 
     if mode == 0:
 
-        filenames = ['result/c101/lem.txt', 'result/c101/dar.txt', 'result/c201/lem.txt', 'result/c201/dar.txt', 'result/r101/lem.txt', 'result/r101/dar.txt', 'result/r201/lem.txt', 'result/r201/dar.txt', 'result/rc101/lem.txt', 'result/rc101/dar.txt', 'result/rc201/lem.txt', 'result/rc201/dar.txt']
+        filenames = ['result/c101/lem.txt', 'result/c101/moea.txt', 'result/c201/lem.txt', 'result/c201/moea.txt', 'result/r101/lem.txt', 'result/r101/moea.txt', 'result/r201/lem.txt', 'result/r201/moea.txt', 'result/rc101/lem.txt', 'result/rc101/moea.txt', 'result/rc201/lem.txt', 'result/rc201/moea.txt']
 
         retstr = ''
 
@@ -220,7 +220,7 @@ def table():
 
     elif mode == 2:
 
-        filenames = ['result/c101/lem.txt', 'result/c101/lem_no_tree.txt', 'result/c201/lem.txt', 'result/c201/lem_no_tree.txt', 'result/r101/lem.txt', 'result/r101/lem_no_tree.txt', 'result/r201/lem.txt', 'result/r201/lem_no_tree.txt', 'result/rc101/lem.txt', 'result/rc101/lem_no_tree.txt', 'result/rc201/lem.txt', 'result/rc201/lem_no_tree.txt']
+        filenames = ['result/c101/lem.txt', 'result/c101/lemNoL.txt', 'result/c201/lem.txt', 'result/c201/lemNoL.txt', 'result/r101/lem.txt', 'result/r101/lemNoL.txt', 'result/r201/lem.txt', 'result/r201/lemNoL.txt', 'result/rc101/lem.txt', 'result/rc101/lemNoL.txt', 'result/rc201/lem.txt', 'result/rc201/lemNoL.txt']
 
         retstr = ''
 
@@ -241,7 +241,7 @@ def table():
     elif mode == 3:
 
         datamap = 'rc201'
-        filenames = ['result/'+datamap+'/lem.txt', 'result/'+datamap+'/lemv1.txt', 'result/'+datamap+'/lemv2.txt', 'result/'+datamap+'/lemv3.txt']
+        filenames = ['result/'+datamap+'/lem.txt', 'result/'+datamap+'/lemV1.txt', 'result/'+datamap+'/lemV2.txt', 'result/'+datamap+'/lemV3.txt']
 
         retstr = ''
 
