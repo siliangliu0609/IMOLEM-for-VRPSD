@@ -33,7 +33,7 @@ def plot_trace(datamaps, modes, labels, titles, save, trace, linestyles):
         for i in range(len(datafiles)):
             axs[0].plot([x[1] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
             axs[1].plot([x[2] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
-            axs[2].plot([x[1]*x[2] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
+            axs[2].plot([x[1]*x[2]*x[0] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
 
         for ax in axs:
             ax.legend()

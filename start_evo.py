@@ -5,24 +5,31 @@ import multiprocessing
 pythonpath = "D:\\Workspace\\virtualenvs\\sci\\Scripts\\python.exe"
 CPUcore = 5
 
-task = int(sys.argv[1])
-
-if task == 0:
-    modes = ['lem', 'moea', 'lemV1', 'lemV2', 'lemV3', 'lemNoL']
-    datasets = ['dt86', 'c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
-    MOmodes = ['']
-elif task == 1:
-    modes = ['lem']
-    datasets = ['dt86', 'c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
-    MOmodes = ['DR', 'DV', 'RV', 'D', 'R', 'V']
+command = []
 
 pre = pythonpath+' main.py evo'
 
+modes = ['lem', 'moea', 'dbmoea', 'lemV1', 'lemV2', 'lemV3', 'lemNoL']
+datasets = ['dt86', 'c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
+for mode in modes:
+    for dataset in datasets:
+        command.append(pre+' '+mode+' '+dataset)
+
+modes = ['lem']
+datasets = ['dt86', 'c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
+MOmodes = ['DR', 'DV', 'RV', 'D', 'R', 'V']
+for mode in modes:
+    for dataset in datasets:
+        for MOmode in MOmodes:
+            command.append(pre+' '+mode+' '+dataset+' '+MOmode)
+
+# for cmd in command:
+#    print(cmd)
+# exit()
+
 if __name__ == '__main__':
     p = multiprocessing.Pool(CPUcore)
-    for mode in modes:
-        for dataset in datasets:
-            for MOmode in MOmodes:
-                p.apply_async(os.system, (pre+' '+mode+' '+dataset+' '+MOmode,))
+    for cmd in command:
+        p.apply_async(os.system, (cmd,))
     p.close()
     p.join()

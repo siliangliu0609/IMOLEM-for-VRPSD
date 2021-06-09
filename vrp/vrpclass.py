@@ -246,14 +246,12 @@ class Route:
 class Plan:
     def __init__(self, routes, distance=None, pay=None):
         self.routes = routes[:]
+
         self.distance = distance
         self.pay = pay
 
-    def copy(self, distance=None, pay=None):
-        if distance == None and pay == None:
-            return type(self)([route.copy() for route in self.routes], self.distance, self.pay)
-        else:
-            return type(self)([route.copy() for route in self.routes], distance, pay)
+    def copy(self):
+        return type(self)([route.copy() for route in self.routes], self.distance, self.pay)
 
     def __repr__(self):
         num = len(self.routes)
@@ -290,6 +288,8 @@ class Plan:
             return False
 
     def local_search_exploitation_SPS(self, problem):
+        for route in self.routes:
+            route.set_mean_demand()
         for index, route in enumerate(self.routes):
             old_distance, *_ = route.distance_time_consume(problem)
             new_route_customer_list = route.customer_list[1:-1]
@@ -301,6 +301,8 @@ class Plan:
                 self.routes[index] = new_route
 
     def local_search_exploitation_WDS(self, problem):
+        for route in self.routes:
+            route.set_mean_demand()
         for index, route in enumerate(self.routes):
             old_distance, *_ = route.distance_time_consume(problem)
             new_route_customer_list = route.customer_list[:]
@@ -374,6 +376,8 @@ class Plan:
     def __merge_shortest_route(self, problem):
         if len(self.routes) == 1:
             return
+        for route in self.routes:
+            route.set_mean_demand()
         sorted_routes = sorted(self.routes, key=lambda route: route.distance_time_consume(problem)[0])
         sorted_routes[0].customer_list.pop(-1)
         sorted_routes[1].customer_list.pop(0)
@@ -381,6 +385,8 @@ class Plan:
         self.routes.remove(sorted_routes[1])
 
     def __split_longest_route(self, problem):
+        for route in self.routes:
+            route.set_mean_demand()
         sorted_routes = sorted(self.routes, key=lambda route: route.distance_time_consume(problem)[0], reverse=True)
         if len(sorted_routes[0].customer_list) == 3:
             return
@@ -415,7 +421,6 @@ class Plan:
         pay = sum_pay/N
         self.distance = distance
         self.pay = pay
-        return distance, pay
 
 
 class VectorPlan:

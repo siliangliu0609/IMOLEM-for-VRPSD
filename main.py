@@ -110,9 +110,9 @@ def fig():
 
     if mode == 0:
 
-        datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
-        #datamaps = ['c101']
-        modes = ['lem', 'moea', 'lem_DRV_DR', 'lem_DRV_DV', 'lem_DRV_RV', 'lem_DRV_D', 'lem_DRV_R', 'lem_DRV_V']
+        #datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
+        datamaps = ['c101']
+        modes = ['lem', 'moea', 'dbmoea', 'lem_DRV_DR', 'lem_DRV_DV', 'lem_DRV_RV', 'lem_DRV_D', 'lem_DRV_R', 'lem_DRV_V']
         #modes = ['lem', 'moea']
 
         pl.plot_population_trace(datamaps, modes)
@@ -121,8 +121,8 @@ def fig():
 
         datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
         #datamaps = ['dt86']
-        modes = ['lem', 'moea']
-        labels = ['IMOLEM', 'MOEA']
+        modes = ['lem', 'moea', 'dbmoea']
+        labels = ['IMOLEM', 'MOEA', 'DB-MOEA']
 
         titles = ['Travel distance', 'Driver remuneration', 'Travel distance * Driver remuneration']
         save = ['comparison_distance', 'comparison_pay', 'comparison_product']
@@ -162,9 +162,9 @@ def fig():
 
     elif mode == 4:
 
-        datamaps = ['dt86', 'c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
-        #datamaps = ['dt86']
-        modes = ['moea', 'lem']
+        #datamaps = ['dt86', 'c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
+        datamaps = ['c101']
+        modes = ['moea', 'lem', 'dbmoea']
 
         pl.plot_population_last(datamaps, modes)
 

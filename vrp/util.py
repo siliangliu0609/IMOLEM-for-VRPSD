@@ -13,12 +13,14 @@ def build_first_plan(problem):
     demand = 0
     time = 0
     route_cuslist = [problem.customers[0]]
-    i = 1
-    while i < len(problem.customers):
-        demand += problem.customers[i].mean
-        time += route_cuslist[-1].get_distance(problem.customers[i]) + problem.customers[i].servicetime
+    i = 0
+    select_sequence = list(range(1, len(problem.customers)))
+    random.shuffle(select_sequence)
+    while i < len(select_sequence):
+        demand += problem.customers[select_sequence[i]].mean
+        time += route_cuslist[-1].get_distance(problem.customers[select_sequence[i]]) + problem.customers[select_sequence[i]].servicetime
         if demand < problem.capacity and time < problem.time_bound:
-            route_cuslist.append(problem.customers[i])
+            route_cuslist.append(problem.customers[select_sequence[i]])
             i += 1
         else:
             route_cuslist.append(problem.customers[0])
@@ -94,7 +96,7 @@ def instantiating(problem, size, max_route, tree):
 
 
 def instantiating_sub(problem, max_route, positive_rule):
-    #cur_max_route = random.randint(1, max_route)
+    # cur_max_route = random.randint(1, max_route)
     max_priority = len(problem.customers)-1+max_route-1
     select = list(range(1, max_priority+1))
     assigned = []
