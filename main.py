@@ -2,6 +2,7 @@ import os
 import sys
 import pickle
 import random
+import matplotlib.pyplot as plt
 
 import vrp.vrpclass as vrpclass
 import vrp.modes as modes
@@ -101,83 +102,150 @@ def evo():
 
 
 def fig():
-    arg_list = ['allp', 'comparison', 'noLearn', 'v123', 'lastp']
+    arg_list = ['allp', 'comparison', 'noLearn', 'v123', 'lastp', 'map', 'dominate']
 
     if sys.argv[2].isnumeric():
-        mode = int(sys.argv[2])
+        mode = arg_list[int(sys.argv[2])]
     else:
-        mode = arg_list.index(sys.argv[2])
+        mode = sys.argv[2]
 
-    if mode == 0:
+    if mode == 'allp':
 
-        #datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
-        datamaps = ['c101']
+        datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
+        #datamaps = ['c101']
         modes = ['lem', 'moea', 'dbmoea', 'lem_DRV_DR', 'lem_DRV_DV', 'lem_DRV_RV', 'lem_DRV_D', 'lem_DRV_R', 'lem_DRV_V']
         #modes = ['lem', 'moea']
 
         pl.plot_population_trace(datamaps, modes)
 
-    elif mode == 1:
+    elif mode == 'lastp':
+
+        datamaps = ['dt86', 'c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
+        #datamaps = ['c101']
+        modes = ['moea', 'lem', 'dbmoea']
+
+        pl.plot_population_last(datamaps, modes)
+
+    elif mode == 'comparison':
 
         datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
         #datamaps = ['dt86']
         modes = ['lem', 'moea', 'dbmoea']
-        labels = ['IMOLEM', 'MOEA', 'DB-MOEA']
+        labels = ['IMOLEM', 'MOEA', 'MRDL']
 
-        titles = ['Travel distance', 'Driver remuneration', 'Travel distance * Driver remuneration']
-        save = ['comparison_distance', 'comparison_pay', 'comparison_product']
-
-        trace = 'all'
-        linestyles = ['-', ':', '--', '-.']
-
-        pl.plot_trace(datamaps, modes, labels, titles, save, trace, linestyles)
-
-    elif mode == 2:
-
-        datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
-        modes = ['lem', 'lemNoL']
-        labels = ['IMOLEM', 'IMOLEM-dtc']
-
-        titles = ['Travel distance', 'Driver remuneration', 'Travel distance * Driver remuneration']
-        save = ['noL_distance', 'noL_pay', 'noL_product']
+        titles = ['Number of vehicles', 'Travel distance', 'Driver remuneration', 'Distance * Remuneration * Number', 'Distance * Remuneration']
+        save = ['comparison_number', 'comparison_distance', 'comparison_pay', 'comparison_product3', 'comparison_product2']
 
         trace = 'all'
         linestyles = ['-', ':', '--', '-.']
 
         pl.plot_trace(datamaps, modes, labels, titles, save, trace, linestyles)
 
-    elif mode == 3:
+    elif mode == 'v123':
 
         datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
         modes = ['lem', 'lemV1', 'lemV2', 'lemV3']
         labels = ['IMOLEM', 'Variant-I', 'Variant-II', 'Variant-III']
 
-        titles = ['Travel distance', 'Driver remuneration', 'Travel distance * Driver remuneration']
-        save = ['v123_distance', 'v123_pay', 'v123_product']
+        titles = ['Number of vehicles', 'Travel distance', 'Driver remuneration', 'Distance * Remuneration * Number', 'Distance * Remuneration']
+        save = ['v123_number', 'v123_distance', 'v123_pay', 'v123_product3', 'v123_product2']
 
         trace = 'all'
         linestyles = ['-', ':', '--', '-.']
 
         pl.plot_trace(datamaps, modes, labels, titles, save, trace, linestyles)
 
-    elif mode == 4:
+    elif mode == 'noLearn':
 
-        #datamaps = ['dt86', 'c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']
-        datamaps = ['c101']
-        modes = ['moea', 'lem', 'dbmoea']
+        datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
+        modes = ['lem', 'lemNoL']
+        labels = ['IMOLEM', 'IMOLEM-dtc']
 
-        pl.plot_population_last(datamaps, modes)
+        titles = ['Number of vehicles', 'Travel distance', 'Driver remuneration', 'Distance * Remuneration * Number', 'Distance * Remuneration']
+        save = ['noL_number', 'noL_distance', 'noL_pay', 'noL_product3', 'noL_product2']
+
+        trace = 'all'
+        linestyles = ['-', ':', '--', '-.']
+
+        pl.plot_trace(datamaps, modes, labels, titles, save, trace, linestyles)
+
+    elif mode == 'map':
+
+        dataset = sys.argv[3]
+
+        standard_deviation_file = 'data/standard_deviation.txt'
+        map_file = 'data/{}.txt'.format(dataset)
+        if dataset == 'dt86':
+            map_type = 'dt86'
+        else:
+            map_type = 'solomon'
+
+        problem = vrpclass.Problem(map_file, map_type, standard_deviation_file=standard_deviation_file, standard_deviation_target=dataset)
+        problem.read_data()
+
+        for cus in problem.customers:
+            if cus.id == 0:
+                plt.scatter(cus.x, cus.y, marker='^')
+            else:
+                plt.scatter(cus.x, cus.y)
+
+        plt.title(dataset)
+        plt.show()
+
+    elif mode == 'dominate':
+
+        plt.figure()
+        plt.rcParams['font.sans-serif'] = ['SimHei']
+        ax = plt.subplot(111, projection='3d')
+
+        # ax.grid(linestyle='-')
+        ax.xaxis._axinfo["grid"]['linestyle'] = '--'
+        ax.yaxis._axinfo["grid"]['linestyle'] = '--'
+        ax.zaxis._axinfo["grid"]['linestyle'] = '--'
+
+        ax.set_xlabel('行驶距离')
+        ax.set_ylabel('司机报酬')
+        ax.set_zlabel('车辆数')
+
+        ax.set_xlim(0, 2)
+        ax.set_ylim(0, 2)
+        ax.set_zlim(0, 2)
+
+        ax.set_yticks([0, 0.5, 1, 1.5, 2])
+        ax.set_xticks([0, 0.5, 1, 1.5, 2])
+        ax.set_zticks([0, 0.5, 1, 1.5, 2])
+
+        ax.scatter3D(1, 1, 1, color='red')
+
+        ax.plot3D([0, 0], [0, 0], [0, 1], color='blue')
+        ax.plot3D([0, 0], [0, 1], [0, 0], color='blue')
+        ax.plot3D([0, 1], [0, 0], [0, 0], color='blue')
+
+        ax.plot3D([1, 0], [1, 1], [1, 1], color='blue')
+        ax.plot3D([1, 1], [1, 0], [1, 1], color='blue')
+        ax.plot3D([1, 1], [1, 1], [1, 0], color='blue')
+
+        ax.plot3D([0, 1], [0, 0], [1, 1], color='blue')
+        ax.plot3D([0, 0], [0, 1], [1, 1], color='blue')
+
+        ax.plot3D([1, 0], [1, 1], [0, 0], color='blue')
+        ax.plot3D([1, 1], [1, 0], [0, 0], color='blue')
+
+        ax.plot3D([1, 1], [0, 0], [0, 1], color='blue')
+        ax.plot3D([0, 0], [1, 1], [0, 1], color='blue')
+
+        plt.show()
 
 
 def table():
-    arglist = ['comparison', 'mo', 'noLearn', 'v123']
+    arglist = ['comparison', 'noLearn', 'v123', 'mo']
 
     if sys.argv[2].isnumeric():
-        mode = int(sys.argv[2])
+        mode = arglist[int(sys.argv[2])]
     else:
-        mode = arglist.index(sys.argv[2])
+        mode = sys.argv[2]
 
-    if mode == 0:
+    if mode == 'comparison':
 
         filenames = ['result/c101/lem.txt', 'result/c101/moea.txt', 'result/c201/lem.txt', 'result/c201/moea.txt', 'result/r101/lem.txt', 'result/r101/moea.txt', 'result/r201/lem.txt', 'result/r201/moea.txt', 'result/rc101/lem.txt', 'result/rc101/moea.txt', 'result/rc201/lem.txt', 'result/rc201/moea.txt']
 
@@ -197,28 +265,7 @@ def table():
         print(retstr)
         open('result/table.txt', 'w').write(retstr)
 
-    elif mode == 1:
-
-        datamap = 'rc201'
-        filenames = ['result/'+datamap+'/lem.txt', 'result/'+datamap+'/lem_DRV_DR.txt', 'result/'+datamap+'/lem_DRV_DV.txt', 'result/'+datamap+'/lem_DRV_RV.txt', 'result/'+datamap+'/lem_DRV_D.txt', 'result/'+datamap+'/lem_DRV_R.txt', 'result/'+datamap+'/lem_DRV_V.txt']
-
-        retstr = ''
-
-        for fn in filenames:
-            f = open(fn)
-            results = []
-            for row, line in enumerate(f):
-                if row < 9:
-                    continue
-                if row > 14:
-                    break
-                results.append(float(line.split()[-1]))
-            retstr += '& {:.0f} & {:.2f} & {:.2f} & {:.2f} & {:.2f} & {:.2f} \\\\\n'.format(*results)
-
-        print(retstr)
-        open('result/table.txt', 'w').write(retstr)
-
-    elif mode == 2:
+    elif mode == 'noLearn':
 
         filenames = ['result/c101/lem.txt', 'result/c101/lemNoL.txt', 'result/c201/lem.txt', 'result/c201/lemNoL.txt', 'result/r101/lem.txt', 'result/r101/lemNoL.txt', 'result/r201/lem.txt', 'result/r201/lemNoL.txt', 'result/rc101/lem.txt', 'result/rc101/lemNoL.txt', 'result/rc201/lem.txt', 'result/rc201/lemNoL.txt']
 
@@ -238,7 +285,7 @@ def table():
         print(retstr)
         open('result/table.txt', 'w').write(retstr)
 
-    elif mode == 3:
+    elif mode == 'v123':
 
         datamap = 'rc201'
         filenames = ['result/'+datamap+'/lem.txt', 'result/'+datamap+'/lemV1.txt', 'result/'+datamap+'/lemV2.txt', 'result/'+datamap+'/lemV3.txt']
@@ -255,6 +302,27 @@ def table():
                     break
                 results.append(float(line.split()[-1]))
             retstr += '& {:.2f} & {:.2f} & {:.2f} & {:.2f} & {:.2f} \\\\\n'.format(*results)
+
+        print(retstr)
+        open('result/table.txt', 'w').write(retstr)
+
+    elif mode == 'mo':
+
+        datamap = 'rc201'
+        filenames = ['result/'+datamap+'/lem.txt', 'result/'+datamap+'/lem_DRV_DR.txt', 'result/'+datamap+'/lem_DRV_DV.txt', 'result/'+datamap+'/lem_DRV_RV.txt', 'result/'+datamap+'/lem_DRV_D.txt', 'result/'+datamap+'/lem_DRV_R.txt', 'result/'+datamap+'/lem_DRV_V.txt']
+
+        retstr = ''
+
+        for fn in filenames:
+            f = open(fn)
+            results = []
+            for row, line in enumerate(f):
+                if row < 9:
+                    continue
+                if row > 14:
+                    break
+                results.append(float(line.split()[-1]))
+            retstr += '& {:.0f} & {:.2f} & {:.2f} & {:.2f} & {:.2f} & {:.2f} \\\\\n'.format(*results)
 
         print(retstr)
         open('result/table.txt', 'w').write(retstr)

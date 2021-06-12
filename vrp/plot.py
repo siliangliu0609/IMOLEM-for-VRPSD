@@ -31,9 +31,11 @@ def plot_trace(datamaps, modes, labels, titles, save, trace, linestyles):
 
         #avg_routes, avg_distance, avg_pay, hv, spacing
         for i in range(len(datafiles)):
-            axs[0].plot([x[1] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
-            axs[1].plot([x[2] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
-            axs[2].plot([x[1]*x[2]*x[0] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
+            axs[0].plot([x[0] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
+            axs[1].plot([x[1] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
+            axs[2].plot([x[2] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
+            axs[3].plot([x[0]*x[1]*x[2] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
+            axs[4].plot([x[1]*x[2] for x in trace_lists[i]], label=labels[i], linestyle=linestyles[i])
 
         for ax in axs:
             ax.legend()
@@ -52,6 +54,8 @@ def plot_population_trace(datamaps, modes):
 
         if not os.path.exists('pic/'+datamap):
             os.mkdir('pic/'+datamap)
+        if not os.path.exists('pic/'+datamap+'/allp'):
+            os.mkdir('pic/'+datamap+'/allp')
 
         for mode in modes:
             print('ploting {} {}'.format(datamap, mode))
@@ -83,7 +87,7 @@ def plot_population_trace(datamaps, modes):
             ax.set_ylabel('Travel distance')
             ax.set_zlabel('Driver remuneration')
             plt.tight_layout()
-            plt.savefig('pic/{}/{}_{}_space_3d_trace.png'.format(datamap, datamap, mode))
+            plt.savefig('pic/{}/allp/{}_{}_allp_3d.png'.format(datamap, datamap, mode))
             plt.close()
 
             plt.figure(datamap+mode+'1')
@@ -93,7 +97,7 @@ def plot_population_trace(datamaps, modes):
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Driver remuneration')
             plt.tight_layout()
-            plt.savefig('pic/{}/{}_{}_space_2d_DR_trace.png'.format(datamap, datamap, mode))
+            plt.savefig('pic/{}/allp/{}_{}_allp_2d_DR.png'.format(datamap, datamap, mode))
             plt.close()
 
             plt.figure(datamap+mode+'2')
@@ -103,7 +107,7 @@ def plot_population_trace(datamaps, modes):
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Number of Vehicles')
             plt.tight_layout()
-            plt.savefig('pic/{}/{}_{}_space_2d_DV_trace.png'.format(datamap, datamap, mode))
+            plt.savefig('pic/{}/allp/{}_{}_allp_2d_DV.png'.format(datamap, datamap, mode))
             plt.close()
 
             plt.figure(datamap+mode+'3')
@@ -113,7 +117,7 @@ def plot_population_trace(datamaps, modes):
             ax.set_xlabel('Driver remuneration')
             ax.set_ylabel('Number of Vehicles')
             plt.tight_layout()
-            plt.savefig('pic/{}/{}_{}_space_2d_RV_trace.png'.format(datamap, datamap, mode))
+            plt.savefig('pic/{}/allp/{}_{}_allp_2d_RV.png'.format(datamap, datamap, mode))
             plt.close()
 
             # plt.show()
@@ -124,6 +128,8 @@ def plot_population_last(datamaps, modes):
 
         if not os.path.exists('pic/'+datamap):
             os.mkdir('pic/'+datamap)
+        if not os.path.exists('pic/'+datamap+'/lastp'):
+            os.mkdir('pic/'+datamap+'/lastp')
 
         for mode in modes:
             print('ploting {} {}'.format(datamap, mode))
@@ -157,7 +163,7 @@ def plot_population_last(datamaps, modes):
             ax.set_ylabel('Travel distance')
             ax.set_zlabel('Driver remuneration')
             plt.tight_layout()
-            plt.savefig('pic/{}/{}_{}_space_3d.png'.format(datamap, datamap, mode))
+            plt.savefig('pic/{}/lastp/{}_{}_lastp_3d.png'.format(datamap, datamap, mode))
             plt.close()
 
             plt.figure(datamap+mode+'1')
@@ -167,7 +173,7 @@ def plot_population_last(datamaps, modes):
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Driver remuneration')
             plt.tight_layout()
-            plt.savefig('pic/{}/{}_{}_space_2d_DR.png'.format(datamap, datamap, mode))
+            plt.savefig('pic/{}/lastp/{}_{}_lastp_2d_DR.png'.format(datamap, datamap, mode))
             plt.close()
 
             plt.figure(datamap+mode+'2')
@@ -177,7 +183,7 @@ def plot_population_last(datamaps, modes):
             ax.set_xlabel('Travel distance')
             ax.set_ylabel('Number of Vehicles')
             plt.tight_layout()
-            plt.savefig('pic/{}/{}_{}_space_2d_DV.png'.format(datamap, datamap, mode))
+            plt.savefig('pic/{}/lastp/{}_{}_lastp_2d_DV.png'.format(datamap, datamap, mode))
             plt.close()
 
             plt.figure(datamap+mode+'3')
@@ -187,7 +193,7 @@ def plot_population_last(datamaps, modes):
             ax.set_xlabel('Driver remuneration')
             ax.set_ylabel('Number of Vehicles')
             plt.tight_layout()
-            plt.savefig('pic/{}/{}_{}_space_2d_RV.png'.format(datamap, datamap, mode))
+            plt.savefig('pic/{}/lastp/{}_{}_lastp_2d_RV.png'.format(datamap, datamap, mode))
             plt.close()
 
             # plt.show()
