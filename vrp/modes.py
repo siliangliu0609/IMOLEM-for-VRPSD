@@ -2,9 +2,8 @@ import random
 from sklearn import tree
 from collections import deque
 
-from . import util
+from . import util, moead, mrdl
 from .vrpclass import VectorPlan
-from . import moead
 
 
 def moea(evo_param, problem):
@@ -225,20 +224,20 @@ def random_evo(evo_param, problem):
 
 def dbmoea(evo_param, problem):
     evo_param.size = 105
+    evo_param.gamma = 20
 
     Q_trace = []
     converge_trace_all = []
     converge_trace_first = []
 
     weigh_vectors = moead.Weight_vector()
-    weigh_vectors.cal_W_Bi_T()
+    weigh_vectors.cal_B()
 
     P = []  # 进化种群
     first_plan = util.build_first_plan(problem)
     P.append(first_plan)
     max_route = len(first_plan.routes)
     P.extend(util.initialization(problem, evo_param.size-1, max_route))
-    Q = P
 
     for cus in problem.customers:
         cus.generate_actual_demand(evo_param.N)
@@ -250,11 +249,13 @@ def dbmoea(evo_param, problem):
     for iter in range(evo_param.maxiter):
         print('moead iter {} at {}...'.format(iter, problem.name))
 
+        C = []
+
         for cus in problem.customers:
             cus.generate_actual_demand(evo_param.N)
 
         for index in range(evo_param.size):
-            k, j = weigh_vectors.pick_2_neighbor_of_W_i(index)
+            k, j = weigh_vectors.pick_x_neighbor_of_i(index, 2)
             plan_k = P[k].copy()
             plan_j = P[j].copy()
             plan_k.route_crossover(plan_j, 1)
@@ -265,12 +266,18 @@ def dbmoea(evo_param, problem):
             new_plan = plan_k
             new_plan.RSM(evo_param.N, problem)
             moead.update_Z(Z, new_plan)
-            if moead.cal_tchbycheff(new_plan, weigh_vectors, index, Z) <= moead.cal_tchbycheff(plan_j, weigh_vectors, index, Z):
-                P[index] = new_plan
+            if moead.cal_tchbycheff(new_plan, weigh_vectors, index, Z) <= moead.cal_tchbycheff(P[index], weigh_vectors, index, Z):
+                C.append(new_plan)
+            else:
+                C.append(P[index])
+            # C.append(new_plan)
+
+        #P = mrdl.environmental_selection(P, C, weigh_vectors, Z, evo_param.gamma)
+        P = C
 
         if evo_param.trace:
-            converge_trace_all.append(util.show_result(Q, evo_param.N, problem)[0])
-            converge_trace_first.append(util.show_result(util.pareto_first(Q), evo_param.N, problem)[0])
-            Q_trace.append([plan.copy() for plan in Q])
+            converge_trace_all.append(util.show_result(P, evo_param.N, problem)[0])
+            converge_trace_first.append(util.show_result(util.pareto_first(P), evo_param.N, problem)[0])
+            Q_trace.append([plan.copy() for plan in P])
 
-    return Q, Q_trace, converge_trace_all, converge_trace_first
+    return P, Q_trace, converge_trace_all, converge_trace_first

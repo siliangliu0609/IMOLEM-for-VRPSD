@@ -9,9 +9,9 @@ class Weight_vector:
     def __init__(self, H=13, m=3, T_size=20):
         self.H = H
         self.m = m
-        self.W = self.__get_mean_vectors()
+        self.W = self.get_mean_vectors()
         self.T_size = T_size
-        self.W_Bi_T = []  # 权重的T个邻居
+        self.B = []  # 权重的T个邻居
 
     def __perm(self, sequence):
         # ！！！ 序列全排列，且无重复
@@ -29,13 +29,13 @@ class Weight_vector:
                     r.append(l[i:i + 1] + x)
         return r
 
-    def __get_mean_vectors(self):
+    def get_mean_vectors(self):
         H = self.H
         m = self.m
         sequence = []
-        for ii in range(H):
+        for _ in range(H):
             sequence.append(0)
-        for jj in range(m - 1):
+        for _ in range(m - 1):
             sequence.append(1)
         ws = []
 
@@ -56,7 +56,7 @@ class Weight_vector:
                 ws.append(weight)
         return np.array(ws)
 
-    def cal_W_Bi_T(self):
+    def cal_B(self):
         # 计算权重的T个邻居
         for bi in range(len(self.W)):
             Bi = self.W[bi]
@@ -64,32 +64,31 @@ class Weight_vector:
             B_T = np.argsort(DIS)
             # 第0个是自己（距离永远最小）
             B_T = B_T[1:self.T_size + 1]
-            self.W_Bi_T.append(B_T)
+            self.B.append(B_T)
 
-    def pick_2_neighbor_of_W_i(self, i):
-        pick = random.sample(range(self.T_size), 2)
-        return self.W_Bi_T[i][pick[0]], self.W_Bi_T[i][pick[1]]
+    def pick_x_neighbor_of_i(self, i, x):
+        neighbor = self.B[i].tolist()
+        return random.sample(neighbor, x)
 
 
-def initialize_Z(P):
-    distance = []
-    pay = []
-    NV = []
+def initialize_Z(P, objective_num=3):
+    objectives = []
+    for _ in range(objective_num):
+        objectives.append([])
     for plan in P:
-        distance.append(plan.distance)
-        pay.append(plan.pay)
-        NV.append(len(plan.routes))
-    Z = [min(distance), min(pay), min(NV)]
+        for ob_i in range(objective_num):
+            objectives[ob_i].append(plan.get_objective()[ob_i])
+    Z = []
+    for ob_i in range(objective_num):
+        Z.append(min(objectives[ob_i]))
     return Z
 
 
-def update_Z(Z, plan):
-    if plan.distance < Z[0]:
-        Z[0] = plan.distance
-    if plan.pay < Z[1]:
-        Z[1] = plan.pay
-    if len(plan.routes) < Z[2]:
-        Z[2] = len(plan.routes)
+def update_Z(Z, plan, objective_num=3):
+    plan_objective = plan.get_objective()
+    for ob_i in range(objective_num):
+        if plan_objective[ob_i] < Z[ob_i]:
+            Z[ob_i] = plan_objective[ob_i]
 
 
 def Tchebycheff_dist(w0, f0, z0):
@@ -97,13 +96,13 @@ def Tchebycheff_dist(w0, f0, z0):
     return w0 * abs(f0 - z0)
 
 
-def cal_tchbycheff(plan, weigh_vectors, idx, Z):
+def cal_tchbycheff(plan, weigh_vectors, idx, Z, objective_num=3):
     # idx：X在种群中的位置
     # 计算X的切比雪夫距离（与理想点Z的）
     max = 0
     w = weigh_vectors.W[idx]
-    F_X = [plan.distance, plan.pay, len(plan.routes)]
-    for i in range(3):
+    F_X = plan.get_objective()
+    for i in range(objective_num):
         fi = Tchebycheff_dist(w[i], F_X[i], Z[i])
         if fi > max:
             max = fi

@@ -191,7 +191,7 @@ def pareto_sort(P, needNum=None, needLevel=None, MOmode='DRV'):
     objv = []
     for plan in P:
         if MOmode == 'DRV':
-            objv.append([plan.distance, plan.pay, len(plan.routes)])
+            objv.append(plan.get_objective())
         elif MOmode == 'DR':
             objv.append([plan.distance, plan.pay])
         elif MOmode == 'DV':
@@ -234,7 +234,7 @@ def target_sort(P, size, target):
 def indicator_HV(P):
     objv = []
     for plan in P:
-        objv.append([plan.distance, plan.pay, len(plan.routes)])
+        objv.append(plan.get_objective())
     objv = np.array(objv)
     hv = ea.indicator.HV(objv)
     return hv
@@ -245,7 +245,7 @@ def indicator_Spacing(P):
         return 0
     objv = []
     for plan in P:
-        objv.append([plan.distance, plan.pay, len(plan.routes)])
+        objv.append(plan.get_objective())
     objv = np.array(objv)
     sc = ea.indicator.Spacing(objv)
     return sc
@@ -329,7 +329,7 @@ def check_plan_legal(P, customers):
 def pareto_first(P):
     objv = []
     for plan in P:
-        objv.append([plan.distance, plan.pay, len(plan.routes)])
+        objv.append(plan.get_objective())
     objv = np.array(objv)
     levels, _ = ea.ndsortESS(objv)
     Pfirst = []

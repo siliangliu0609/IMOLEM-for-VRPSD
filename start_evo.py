@@ -2,12 +2,11 @@ import os
 import sys
 import multiprocessing
 
-pythonpath = "D:\\Workspace\\virtualenvs\\sci\\Scripts\\python.exe"
 CPUcore = 5
 
 command = []
 
-pre = pythonpath+' main.py evo'
+pre = 'python main.py evo'
 
 modes = ['lem', 'moea', 'dbmoea', 'lemV1', 'lemV2', 'lemV3', 'lemNoL']
 datasets = ['dt86', 'c101', 'c201', 'r101', 'r201', 'rc101', 'rc201']

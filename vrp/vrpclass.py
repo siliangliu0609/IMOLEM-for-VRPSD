@@ -422,6 +422,15 @@ class Plan:
         self.distance = distance
         self.pay = pay
 
+    def get_objective(self):
+        return (self.distance, self.pay, len(self.routes))  # DRV
+
+    def cal_difference(self, other_plan):
+        objective1 = np.array(self.get_objective())
+        objective2 = np.array(other_plan.get_objective())
+        diff_vec = objective1-objective2
+        return np.linalg.norm(diff_vec)
+
 
 class VectorPlan:
     # 气泡优先级编码
