@@ -107,3 +107,9 @@ def cal_tchbycheff(plan, weigh_vectors, idx, Z, objective_num=3):
         if fi > max:
             max = fi
     return max
+
+
+if __name__ == '__main__':
+    w = Weight_vector(99, 2, 20)
+    print(w.W)
+    print(len(w.W))

@@ -1,10 +1,9 @@
 # 来源：Online Diversity Assessment in Evolutionary Multiobjective Optimization: A Geometrical Perspective. DOI: 10.1109/TEVC.2014.2353672
 
-from . import moead
 import random
 import numpy as np
-#import warnings
-# warnings.filterwarnings('error')
+
+from . import moead
 
 
 def triangle_S(a, b, c):
@@ -44,16 +43,16 @@ def cal_mrdl(P, C, x, y):
         return max
 
 
-def environmental_selection(P, C, weigh_vectors, Z, gamma):
+def environmental_selection(P, C, weigh_vectors, Z, gamma, objective_num=3):
     assert(len(P) == len(C))
     D = list(range(len(P)))
     random.shuffle(D)
     newP, Pconv, Cconv = [], [], []
     for k in D:
         P_M = []
-        tch_C = moead.cal_tchbycheff(C[k], weigh_vectors, k, Z)
+        tch_C = moead.cal_tchbycheff(C[k], weigh_vectors, k, Z, objective_num)
         for neighbour in weigh_vectors.B[k]:
-            tch_neighbour_parent = moead.cal_tchbycheff(P[neighbour], weigh_vectors, neighbour, Z)
+            tch_neighbour_parent = moead.cal_tchbycheff(P[neighbour], weigh_vectors, neighbour, Z, objective_num)
             if tch_neighbour_parent > tch_C:
                 P_M.append(P[neighbour])
         if len(P_M) == 0:

@@ -2,7 +2,9 @@ import random
 from sklearn import tree
 from collections import deque
 
-from . import util, moead, mrdl
+import mop.mrdl as mrdl
+import mop.moead as moead
+from . import util
 from .vrpclass import VectorPlan
 
 
