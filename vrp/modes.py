@@ -272,8 +272,8 @@ def dbmoea(evo_param, problem):
                 C.append(P[index])
             # C.append(new_plan)
 
-        #P = mrdl.environmental_selection(P, C, weigh_vectors, Z, evo_param.gamma)
         P = C
+        #P = mrdl.environmental_selection(P, C, weigh_vectors, Z, evo_param.gamma)
 
         if evo_param.trace:
             converge_trace_all.append(util.show_result(P, evo_param.N, problem)[0])

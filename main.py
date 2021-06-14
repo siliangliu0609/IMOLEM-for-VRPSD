@@ -112,9 +112,9 @@ def fig():
     if mode == 'allp':
 
         datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
-        #datamaps = ['dt86']
+        #datamaps = ['c101']
         modes = ['lem', 'moea', 'dbmoea', 'lem_DRV_DR', 'lem_DRV_DV', 'lem_DRV_RV', 'lem_DRV_D', 'lem_DRV_R', 'lem_DRV_V']
-        #modes = ['dbmoea']
+        #modes = ['dbmoea_test']
 
         pl.plot_population_trace(datamaps, modes)
 
@@ -129,7 +129,7 @@ def fig():
     elif mode == 'comparison':
 
         datamaps = ['c101', 'c201', 'r101', 'r201', 'rc101', 'rc201', 'dt86']
-        #datamaps = ['dt86']
+        #datamaps = ['c101']
         modes = ['lem', 'moea', 'dbmoea']
         labels = ['IMOLEM', 'MOEA', 'MRDL']
 

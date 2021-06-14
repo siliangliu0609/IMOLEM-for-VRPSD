@@ -1,4 +1,4 @@
-# 来源：Diversity preservation with hybrid recombination for evolutionary multiobjective optimization. DOI: 10.1109/CEC.2014.6900617
+# 来源：Online Diversity Assessment in Evolutionary Multiobjective Optimization: A Geometrical Perspective. DOI: 10.1109/TEVC.2014.2353672
 
 from . import moead
 import random
@@ -27,9 +27,9 @@ def cal_mrdl(P, C, x, y):
     if len(P) == 0:
         return 0
     else:
-        if y in C:
+        if True in map(y.equal, C):
             return float('inf')
-        if x in P:
+        if True in map(x.equal, P):
             return 0
         max = 0
         for i in range(len(P)):
@@ -46,7 +46,6 @@ def cal_mrdl(P, C, x, y):
 
 def environmental_selection(P, C, weigh_vectors, Z, gamma):
     assert(len(P) == len(C))
-    newP = []
     D = list(range(len(P)))
     random.shuffle(D)
     newP, Pconv, Cconv = [], [], []
